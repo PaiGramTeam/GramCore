@@ -10,6 +10,7 @@ __all__ = [
     "SignServices",
     "TaskCardServices",
     "TaskResinServices",
+    "TaskRealmServices",
     "TaskExpeditionServices",
 ]
 
@@ -51,13 +52,17 @@ class SignServices(BaseService, TaskServices):
     TASK_TYPE = TaskTypeEnum.SIGN
 
 
-class TaskCardServices(BaseService, TaskServices):
-    TASK_TYPE = TaskTypeEnum.CARD
-
-
 class TaskResinServices(BaseService, TaskServices):
     TASK_TYPE = TaskTypeEnum.RESIN
 
 
+class TaskRealmServices(BaseService, TaskServices):
+    TASK_TYPE = TaskTypeEnum.REALM
+
+
 class TaskExpeditionServices(BaseService, TaskServices):
     TASK_TYPE = TaskTypeEnum.EXPEDITION
+
+
+class TaskCardServices(BaseService, TaskServices):
+    TASK_TYPE = TaskTypeEnum.CARD

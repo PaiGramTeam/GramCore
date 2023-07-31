@@ -1,17 +1,18 @@
 from typing import List, Optional
 
-from simnet import StarRailClient, Region, Game
-from simnet.errors import InvalidCookies, BadRequest as SimnetBadRequest, TooManyRequests
-
 from gram_core.base_service import BaseService
 from gram_core.basemodel import RegionEnum
 from gram_core.services.cookies.cache import PublicCookiesCache
-from gram_core.services.cookies.error import CookieServiceError, TooManyRequestPublicCookies
+from gram_core.services.cookies.error import TooManyRequestPublicCookies
 from gram_core.services.cookies.models import CookiesDataBase as Cookies, CookiesStatusEnum
 from gram_core.services.cookies.repositories import CookiesRepository
 from utils.log import logger
 
-__all__ = ("CookiesService", "PublicCookiesService")
+__all__ = ("CookiesService", "PublicCookiesService", "NeedContinue")
+
+
+class NeedContinue(Exception):
+    pass
 
 
 class CookiesService(BaseService):
@@ -36,7 +37,7 @@ class CookiesService(BaseService):
         return await self._repository.delete(cookies)
 
 
-class PublicCookiesService(BaseService):
+class PublicCookiesService:
     def __init__(self, cookies_repository: CookiesRepository, public_cookies_cache: PublicCookiesCache):
         self._cache = public_cookies_cache
         self._repository: CookiesRepository = cookies_repository
@@ -69,6 +70,9 @@ class PublicCookiesService(BaseService):
             add, count = await self._cache.add_public_cookies(user_list, RegionEnum.HOYOLAB)
             logger.info("国际服公共Cookies池已经添加[%s]个 当前成员数为[%s]", add, count)
 
+    async def check_public_cookie(self, region: RegionEnum, cookies: Cookies, public_id: int):
+        pass
+
     async def get_cookies(self, user_id: int, region: RegionEnum = RegionEnum.NULL):
         """获取公共Cookies
         :param user_id: 用户ID
@@ -85,68 +89,12 @@ class PublicCookiesService(BaseService):
             if cookies is None:
                 await self._cache.delete_public_cookies(public_id, region)
                 continue
-            if region == RegionEnum.HYPERION:
-                client = StarRailClient(cookies=cookies.data, region=Region.CHINESE)
-            elif region == RegionEnum.HOYOLAB:
-                client = StarRailClient(cookies=cookies.data, region=Region.OVERSEAS, lang="zh-cn")
-            else:
-                raise CookieServiceError
             try:
-                if client.account_id is None:
-                    raise RuntimeError("account_id not found")
-                record_cards = await client.get_record_cards()
-                for record_card in record_cards:
-                    if record_card.game == Game.STARRAIL:
-                        await client.get_starrail_user(record_card.uid)
-                        break
-                else:
-                    accounts = await client.get_game_accounts()
-                    for account in accounts:
-                        if account.game == Game.STARRAIL:
-                            await client.get_starrail_user(account.uid)
-                            break
-            except InvalidCookies as exc:
-                if exc.ret_code in (10001, -100):
-                    logger.warning("用户 [%s] Cookies无效", public_id)
-                elif exc.ret_code == 10103:
-                    logger.warning("用户 [%s] Cookies有效，但没有绑定到游戏帐户", public_id)
-                else:
-                    logger.warning("Cookies无效 ")
-                    logger.exception(exc)
-                cookies.status = CookiesStatusEnum.INVALID_COOKIES
-                await self._repository.update(cookies)
-                await self._cache.delete_public_cookies(cookies.user_id, region)
+                await self.check_public_cookie(region, cookies, public_id)
+                logger.info("用户 user_id[%s] 请求用户 user_id[%s] 的公共Cookies 该Cookies使用次数为%s次 ", user_id, public_id, count)
+                return cookies
+            except NeedContinue:
                 continue
-            except TooManyRequests:
-                logger.warning("用户 [%s] 查询次数太多或操作频繁", public_id)
-                cookies.status = CookiesStatusEnum.TOO_MANY_REQUESTS
-                await self._repository.update(cookies)
-                await self._cache.delete_public_cookies(cookies.user_id, region)
-                continue
-            except SimnetBadRequest as exc:
-                if "invalid content type" in exc.message:
-                    raise exc
-                if exc.ret_code == 1034:
-                    logger.warning("用户 [%s] 触发验证", public_id)
-                else:
-                    logger.warning("用户 [%s] 获取账号信息发生错误，错误信息为", public_id)
-                    logger.exception(exc)
-                await self._cache.delete_public_cookies(cookies.user_id, region)
-                continue
-            except RuntimeError as exc:
-                if "account_id not found" in str(exc):
-                    cookies.status = CookiesStatusEnum.INVALID_COOKIES
-                    await self._repository.update(cookies)
-                    await self._cache.delete_public_cookies(cookies.user_id, region)
-                    continue
-                raise exc
-            except Exception as exc:
-                await self._cache.delete_public_cookies(cookies.user_id, region)
-                raise exc
-            finally:
-                await client.shutdown()
-            logger.info("用户 user_id[%s] 请求用户 user_id[%s] 的公共Cookies 该Cookies使用次数为%s次 ", user_id, public_id, count)
-            return cookies
 
     async def undo(self, user_id: int, cookies: Optional[Cookies] = None, status: Optional[CookiesStatusEnum] = None):
         await self._cache.incr_by_user_times(user_id, -1)
