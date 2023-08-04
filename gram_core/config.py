@@ -11,7 +11,7 @@ from utils.typedefs import NaturalNumber
 
 __all__ = ("ApplicationConfig", "config", "JoinGroups")
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv(usecwd=True))
 
 
 class JoinGroups(str, Enum):
