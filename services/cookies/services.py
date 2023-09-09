@@ -36,6 +36,9 @@ class CookiesService(BaseService):
     async def delete(self, cookies: Cookies) -> None:
         return await self._repository.delete(cookies)
 
+    async def get_all_by_region(self, region: RegionEnum) -> List[Cookies]:
+        return await self._repository.get_all_by_region(region)
+
 
 class PublicCookiesService:
     def __init__(self, cookies_repository: CookiesRepository, public_cookies_cache: PublicCookiesCache):
