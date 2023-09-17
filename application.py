@@ -67,6 +67,8 @@ class Application(Singleton):
             .get_updates_pool_timeout(application_config.update_pool_timeout)
             .defaults(Defaults(tzinfo=pytz.timezone("Asia/Shanghai")))
             .token(application_config.bot_token)
+            .base_url(application_config.bot_base_url)
+            .base_file_url(application_config.bot_base_file_url)
             .request(
                 HTTPXRequest(
                     connection_pool_size=application_config.connection_pool_size,

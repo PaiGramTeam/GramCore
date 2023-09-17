@@ -118,6 +118,10 @@ class ApplicationConfig(Settings):
 
     bot_token: str = ""
     """BOT的token"""
+    bot_base_url: str = "https://api.telegram.org/bot"
+    """Telegram API URL"""
+    bot_base_file_url: str = "https://api.telegram.org/file/bot"
+    """Telegram API File URL"""
 
     owner: Optional[int] = None
 
