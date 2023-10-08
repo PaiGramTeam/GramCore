@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Set
 
 import dotenv
 from pydantic import AnyUrl, Field
@@ -128,7 +128,7 @@ class ApplicationConfig(Settings):
     channels: List[int] = []
     """文章推送群组"""
 
-    verify_groups: List[Union[int, str]] = []
+    verify_groups: Set[int] = set()
     """启用群验证功能的群组"""
     join_groups: Optional[JoinGroups] = JoinGroups.NO_ALLOW
     """是否允许机器人被邀请到其它群组"""
