@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from sqlmodel import select
 
@@ -39,3 +39,9 @@ class DevicesRepository(BaseService.Component):
         async with AsyncSession(self.engine) as session:
             await session.delete(devices)
             await session.commit()
+
+    async def get_all(self) -> List[Devices]:
+        async with AsyncSession(self.engine) as session:
+            statement = select(Devices)
+            results = await session.exec(statement)
+            return results.all()

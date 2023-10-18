@@ -6,6 +6,7 @@ from gram_core.services.cookies.cache import PublicCookiesCache
 from gram_core.services.cookies.error import TooManyRequestPublicCookies
 from gram_core.services.cookies.models import CookiesDataBase as Cookies, CookiesStatusEnum
 from gram_core.services.cookies.repositories import CookiesRepository
+from gram_core.services.devices.repositories import DevicesRepository
 from utils.log import logger
 
 __all__ = ("CookiesService", "PublicCookiesService", "NeedContinue")
@@ -36,14 +37,26 @@ class CookiesService(BaseService):
     async def delete(self, cookies: Cookies) -> None:
         return await self._repository.delete(cookies)
 
-    async def get_all_by_region(self, region: RegionEnum) -> List[Cookies]:
-        return await self._repository.get_all_by_region(region)
+    async def get_all(
+        self,
+        user_id: Optional[int] = None,
+        account_id: Optional[int] = None,
+        region: Optional[RegionEnum] = None,
+        status: Optional[CookiesStatusEnum] = None,
+    ) -> List[Cookies]:
+        return await self._repository.get_all(user_id, account_id, region, status)
 
 
 class PublicCookiesService:
-    def __init__(self, cookies_repository: CookiesRepository, public_cookies_cache: PublicCookiesCache):
+    def __init__(
+        self,
+        cookies_repository: CookiesRepository,
+        public_cookies_cache: PublicCookiesCache,
+        devices_repository: DevicesRepository,
+    ):
         self._cache = public_cookies_cache
         self._repository: CookiesRepository = cookies_repository
+        self.devices_repository = devices_repository
         self.count: int = 0
         self.user_times_limiter = 3 * 3
 
@@ -57,18 +70,22 @@ class PublicCookiesService:
         :return:
         """
         user_list: List[int] = []
-        cookies_list = await self._repository.get_all_by_region(RegionEnum.HYPERION)  # 从数据库获取2
-        for cookies in cookies_list:
-            if cookies.status is None or cookies.status == CookiesStatusEnum.STATUS_SUCCESS:
+        devices_list = await self.devices_repository.get_all()
+        for devices in devices_list:
+            cookies = await self._repository.get_by_account_id(
+                devices.account_id, RegionEnum.HYPERION, CookiesStatusEnum.STATUS_SUCCESS
+            )
+            if cookies is not None:
                 user_list.append(cookies.user_id)
         if len(user_list) > 0:
             add, count = await self._cache.add_public_cookies(user_list, RegionEnum.HYPERION)
             logger.info("国服公共Cookies池已经添加[%s]个 当前成员数为[%s]", add, count)
         user_list.clear()
-        cookies_list = await self._repository.get_all_by_region(RegionEnum.HOYOLAB)
+        cookies_list = await self._repository.get_all(
+            region=RegionEnum.HOYOLAB, status=CookiesStatusEnum.STATUS_SUCCESS
+        )
         for cookies in cookies_list:
-            if cookies.status is None or cookies.status == CookiesStatusEnum.STATUS_SUCCESS:
-                user_list.append(cookies.user_id)
+            user_list.append(cookies.user_id)
         if len(user_list) > 0:
             add, count = await self._cache.add_public_cookies(user_list, RegionEnum.HOYOLAB)
             logger.info("国际服公共Cookies池已经添加[%s]个 当前成员数为[%s]", add, count)
