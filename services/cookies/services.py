@@ -70,13 +70,9 @@ class PublicCookiesService:
         :return:
         """
         user_list: List[int] = []
-        devices_list = await self.devices_repository.get_all()
-        for devices in devices_list:
-            cookies = await self._repository.get_by_account_id(
-                devices.account_id, RegionEnum.HYPERION, CookiesStatusEnum.STATUS_SUCCESS
-            )
-            if cookies is not None:
-                user_list.append(cookies.user_id)
+        data_list = await self._repository.get_by_devices(is_valid=True)
+        for cookies, devices in data_list:
+            user_list.append(cookies.user_id)
         if len(user_list) > 0:
             add, count = await self._cache.add_public_cookies(user_list, RegionEnum.HYPERION)
             logger.info("国服公共Cookies池已经添加[%s]个 当前成员数为[%s]", add, count)
@@ -125,3 +121,9 @@ class PublicCookiesService:
             logger.info("用户 user_id[%s] 反馈用户 user_id[%s] 的Cookies状态为 %s", user_id, cookies.user_id, status.name)
         else:
             logger.info("用户 user_id[%s] 撤销一次公共Cookies计数", user_id)
+
+    async def set_device_valid(self, account_id: int, is_valid: bool) -> None:
+        device = await self.devices_repository.get(account_id)
+        if device:
+            device.is_valid = is_valid
+            await self.devices_repository.update(device)
