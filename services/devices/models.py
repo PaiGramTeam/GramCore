@@ -17,6 +17,7 @@ class Devices(SQLModel):
     device_id: str = Field()
     device_fp: str = Field()
     device_name: Optional[str] = Field(default=None)
+    is_valid: bool = Field(default=True)
 
 
 class DevicesDataBase(Devices, table=True):

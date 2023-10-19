@@ -40,8 +40,10 @@ class DevicesRepository(BaseService.Component):
             await session.delete(devices)
             await session.commit()
 
-    async def get_all(self) -> List[Devices]:
+    async def get_all(self, is_valid: bool = None) -> List[Devices]:
         async with AsyncSession(self.engine) as session:
             statement = select(Devices)
+            if is_valid is not None:
+                statement = statement.where(Devices.is_valid == is_valid)
             results = await session.exec(statement)
             return results.all()
