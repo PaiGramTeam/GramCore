@@ -1,13 +1,13 @@
 from typing import Optional, List, Tuple
 
 from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
 from gram_core.basemodel import RegionEnum
 from gram_core.dependence.database import Database
 from gram_core.services.cookies.models import CookiesDataBase as Cookies, CookiesStatusEnum
 from gram_core.services.devices.models import DevicesDataBase as Devices
-from gram_core.sqlmodel.session import AsyncSession
 
 __all__ = ("CookiesRepository",)
 

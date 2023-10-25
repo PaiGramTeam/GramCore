@@ -1,13 +1,13 @@
 from typing import List, Optional
 
 from sqlmodel import select, delete
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
 from gram_core.basemodel import RegionEnum
 from gram_core.dependence.database import Database
 from gram_core.services.players.models import PlayerInfoSQLModel
 from gram_core.services.players.models import PlayersDataBase as Player
-from gram_core.sqlmodel.session import AsyncSession
 
 __all__ = ("PlayersRepository", "PlayerInfoRepository")
 

@@ -1,11 +1,11 @@
 from typing import List, Optional
 
 from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
 from gram_core.dependence.database import Database
 from gram_core.services.task.models import Task, TaskTypeEnum
-from gram_core.sqlmodel.session import AsyncSession
 
 __all__ = ("TaskRepository",)
 
