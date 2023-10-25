@@ -1,11 +1,11 @@
 from typing import Optional, List
 
 from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
 from gram_core.dependence.database import Database
 from gram_core.services.users.models import UserDataBase as User
-from gram_core.sqlmodel.session import AsyncSession
 
 __all__ = ("UserRepository",)
 

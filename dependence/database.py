@@ -4,11 +4,11 @@ from typing import Optional
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
 from typing_extensions import Self
 
 from gram_core.base_service import BaseService
 from gram_core.config import ApplicationConfig
-from gram_core.sqlmodel.session import AsyncSession
 
 __all__ = ("Database",)
 
