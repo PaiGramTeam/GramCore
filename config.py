@@ -114,7 +114,6 @@ class ApplicationConfig(Settings):
 
     proxy_url: Optional[AnyUrl] = None
     """代理链接"""
-    upload_bbs_host: Optional[AnyUrl] = "https://upload-bbs.miyoushe.com"
 
     bot_token: str = ""
     """BOT的token"""
