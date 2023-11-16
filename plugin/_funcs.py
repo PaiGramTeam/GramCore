@@ -19,9 +19,9 @@ if TYPE_CHECKING:
     from gram_core.application import Application
 
 try:
-    import ujson as json
+    import ujson as jsonlib
 except ImportError:
-    import json
+    import json as jsonlib
 
 __all__ = (
     "PluginFuncs",
@@ -81,7 +81,7 @@ class PluginFuncs:
 
         data = await redis_db.client.get(qname)
         if data:
-            json_data = json.loads(data)
+            json_data = jsonlib.loads(data)
             return Chat.de_json(json_data, application.telegram.bot)
 
         chat_info = await application.telegram.bot.get_chat(chat_id)
