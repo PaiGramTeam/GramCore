@@ -98,7 +98,7 @@ class ReloadConfig(Settings):
 
 
 class NoticeConfig(Settings):
-    user_mismatch: str = "再乱点我叫西风骑士团、千岩军、天领奉行、三十人团和风纪官了！"
+    user_mismatch: str = "再乱点我叫西风骑士团、千岩军、天领奉行、三十人团和逐影庭了！"
 
     class Config(Settings.Config):
         env_prefix = "notice_"
