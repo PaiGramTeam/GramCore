@@ -114,15 +114,7 @@ class _RunRepeating(_Job):
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
         super().__init__(
-            name,
-            data,
-            chat_id,
-            user_id,
-            job_kwargs,
-            dispatcher=dispatcher,
-            interval=interval,
-            first=first,
-            last=last,
+            name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher, interval=interval, first=first, last=last
         )
 
 
@@ -139,16 +131,7 @@ class _RunMonthly(_Job):
         *,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super().__init__(
-            name,
-            data,
-            chat_id,
-            user_id,
-            job_kwargs,
-            dispatcher=dispatcher,
-            when=when,
-            day=day,
-        )
+        super().__init__(name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher, when=when, day=day)
 
 
 class _RunDaily(_Job):
@@ -164,16 +147,7 @@ class _RunDaily(_Job):
         *,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super().__init__(
-            name,
-            data,
-            chat_id,
-            user_id,
-            job_kwargs,
-            dispatcher=dispatcher,
-            time=time,
-            days=days,
-        )
+        super().__init__(name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher, time=time, days=days)
 
 
 class _RunCustom(_Job):

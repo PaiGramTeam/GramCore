@@ -33,11 +33,7 @@ from utils.log import logger
 
 if TYPE_CHECKING:
     from gram_core.application import Application
-    from gram_core.plugin._handler import (
-        ConversationData,
-        HandlerData,
-        ErrorHandlerData,
-    )
+    from gram_core.plugin._handler import ConversationData, HandlerData, ErrorHandlerData
     from gram_core.plugin._job import JobData
     from multiprocessing.synchronize import RLock as LockType
 
@@ -293,19 +289,10 @@ class _Conversation(_Plugin, ConversationFuncs, ABC):
                     kwargs.update(self.Config().dict())
                     self._handlers.append(ConversationHandler(entry_points, states, fallbacks, **kwargs))
                 else:
-                    temp_dict = {
-                        "entry_points": entry_points,
-                        "states": states,
-                        "fallbacks": fallbacks,
-                    }
-                    reason = map(
-                        lambda x: f"'{x[0]}'",
-                        filter(lambda x: not x[1], temp_dict.items()),
-                    )
+                    temp_dict = {"entry_points": entry_points, "states": states, "fallbacks": fallbacks}
+                    reason = map(lambda x: f"'{x[0]}'", filter(lambda x: not x[1], temp_dict.items()))
                     logger.warning(
-                        "'%s' 因缺少 '%s' 而生成无法生成 ConversationHandler",
-                        self.__class__.__name__,
-                        ", ".join(reason),
+                        "'%s' 因缺少 '%s' 而生成无法生成 ConversationHandler", self.__class__.__name__, ", ".join(reason)
                     )
         return self._handlers
 
