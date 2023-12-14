@@ -4,11 +4,7 @@ from telegram import Chat, Message
 from telegram.error import Forbidden, NetworkError
 from telegram.ext import CallbackContext, Job
 
-from gram_core.plugin.methods import PluginFuncMethods
 from utils.log import logger
-
-if TYPE_CHECKING:
-    pass
 
 if TYPE_CHECKING:
     from . import PluginFuncMethods
