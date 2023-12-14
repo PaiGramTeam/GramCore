@@ -72,9 +72,7 @@ class _Job:
             user_id=self.user_id,
             job_kwargs=self.job_kwargs,
             kwargs=self.kwargs,
-            type=re.sub(
-                r"([A-Z])", lambda x: "_" + x.group().lower(), self.__class__.__name__
-            ).lstrip("_"),
+            type=re.sub(r"([A-Z])", lambda x: "_" + x.group().lower(), self.__class__.__name__).lstrip("_"),
             dispatcher=self.dispatcher,
         )
         if hasattr(func, _JOB_ATTR_NAME):
@@ -98,9 +96,7 @@ class _RunOnce(_Job):
         *,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super().__init__(
-            name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher, when=when
-        )
+        super().__init__(name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher, when=when)
 
 
 class _RunRepeating(_Job):
@@ -191,9 +187,7 @@ class _RunCustom(_Job):
         *,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super().__init__(
-            name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher
-        )
+        super().__init__(name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher)
 
 
 # noinspection PyPep8Naming

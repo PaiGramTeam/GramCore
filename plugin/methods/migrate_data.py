@@ -1,10 +1,13 @@
+from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class IMigrateData:
+class IMigrateData(ABC):
+    @abstractmethod
     async def migrate_data_msg(self) -> str:
         """返回迁移数据的提示信息"""
 
+    @abstractmethod
     async def migrate_data(self) -> bool:
         """迁移数据"""
 

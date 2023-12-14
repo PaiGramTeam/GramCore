@@ -133,9 +133,7 @@ class _CallbackQuery(_Handler):
         admin: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_CallbackQuery, self).__init__(
-            pattern=pattern, block=block, admin=admin, dispatcher=dispatcher
-        )
+        super(_CallbackQuery, self).__init__(pattern=pattern, block=block, admin=admin, dispatcher=dispatcher)
 
 
 class _ChatJoinRequest(_Handler):
@@ -156,9 +154,7 @@ class _ChatMember(_Handler):
         block: DVInput[bool] = DEFAULT_TRUE,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super().__init__(
-            chat_member_types=chat_member_types, block=block, dispatcher=dispatcher
-        )
+        super().__init__(chat_member_types=chat_member_types, block=block, dispatcher=dispatcher)
 
 
 class _ChosenInlineResult(_Handler):
@@ -200,9 +196,7 @@ class _InlineQuery(_Handler):
         block: DVInput[bool] = DEFAULT_TRUE,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_InlineQuery, self).__init__(
-            pattern=pattern, block=block, chat_types=chat_types, dispatcher=dispatcher
-        )
+        super(_InlineQuery, self).__init__(pattern=pattern, block=block, chat_types=chat_types, dispatcher=dispatcher)
 
 
 class _Message(_Handler):
@@ -214,9 +208,7 @@ class _Message(_Handler):
         admin: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ) -> None:
-        super(_Message, self).__init__(
-            filters=filters, block=block, admin=admin, dispatcher=dispatcher
-        )
+        super(_Message, self).__init__(filters=filters, block=block, admin=admin, dispatcher=dispatcher)
 
 
 class _PollAnswer(_Handler):
@@ -287,9 +279,7 @@ class _StringCommand(_Handler):
         block: DVInput[bool] = DEFAULT_TRUE,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_StringCommand, self).__init__(
-            command=command, block=block, admin=admin, dispatcher=dispatcher
-        )
+        super(_StringCommand, self).__init__(command=command, block=block, admin=admin, dispatcher=dispatcher)
 
 
 class _StringRegex(_Handler):
@@ -301,9 +291,7 @@ class _StringRegex(_Handler):
         admin: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_StringRegex, self).__init__(
-            pattern=pattern, block=block, admin=admin, dispatcher=dispatcher
-        )
+        super(_StringRegex, self).__init__(pattern=pattern, block=block, admin=admin, dispatcher=dispatcher)
 
 
 class _Type(_Handler):
@@ -316,9 +304,7 @@ class _Type(_Handler):
         block: DVInput[bool] = DEFAULT_TRUE,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):  # pylint: disable=redefined-builtin
-        super(_Type, self).__init__(
-            type=type, strict=strict, block=block, dispatcher=dispatcher
-        )
+        super(_Type, self).__init__(type=type, strict=strict, block=block, dispatcher=dispatcher)
 
 
 # noinspection PyPep8Naming

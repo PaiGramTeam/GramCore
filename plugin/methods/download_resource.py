@@ -28,9 +28,7 @@ class DownloadResource:
                     return ""
 
                 if response.is_error:
-                    logger.error(
-                        "请求出现错误 url[%s] status_code[%s]", url, response.status_code
-                    )
+                    logger.error("请求出现错误 url[%s] status_code[%s]", url, response.status_code)
                     raise UrlResourcesNotFoundError(url)
 
                 if response.status_code != 200:

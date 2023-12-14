@@ -21,9 +21,7 @@ class GetChat:
         expire: int = 86400,
     ) -> Chat:
         application = self.application
-        redis_db: RedisDB = redis_db or self.application.managers.dependency_map.get(
-            RedisDB, None
-        )
+        redis_db: RedisDB = redis_db or self.application.managers.dependency_map.get(RedisDB, None)
 
         if not redis_db:
             return await application.bot.get_chat(chat_id)

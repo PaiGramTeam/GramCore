@@ -11,9 +11,7 @@ if TYPE_CHECKING:
 
 
 class DeleteMessage:
-    async def _delete_message(
-        self: "PluginFuncMethods", context: "CallbackContext"
-    ) -> None:
+    async def _delete_message(self: "PluginFuncMethods", context: "CallbackContext") -> None:
         job = context.job
         message_id = job.data
         chat_info = f"chat_id[{job.chat_id}]"
@@ -36,17 +34,11 @@ class DeleteMessage:
             # noinspection PyTypeChecker
             await context.bot.delete_message(chat_id=job.chat_id, message_id=message_id)
         except NetworkError as exc:
-            logger.warning(
-                "删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc.message
-            )
+            logger.warning("删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc.message)
         except Forbidden as exc:
-            logger.warning(
-                "删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc.message
-            )
+            logger.warning("删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc.message)
         except Exception as exc:
-            logger.error(
-                "删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc_info=exc
-            )
+            logger.error("删除消息 %s message_id[%s] 失败 %s", chat_info, message_id, exc_info=exc)
 
     def add_delete_message_job(
         self: "PluginFuncMethods",
@@ -75,9 +67,7 @@ class DeleteMessage:
             callback=self._delete_message,
             when=delay,
             data=message,
-            name=f"{chat}|{message}|{name}|delete_message"
-            if name
-            else f"{chat}|{message}|delete_message",
+            name=f"{chat}|{message}|{name}|delete_message" if name else f"{chat}|{message}|delete_message",
             chat_id=chat,
             job_kwargs={
                 "replace_existing": True,
