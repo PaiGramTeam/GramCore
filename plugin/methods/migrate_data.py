@@ -1,7 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Optional, TypeVar, List, Any, Tuple, Type
+from typing import Optional, TypeVar, List, Any, Tuple, Type, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gram_core.services.players.models import PlayersDataBase as Player
 
 T = TypeVar("T")
+
+
+class MigrateDataException(Exception):
+    """迁移数据异常"""
+
+    def __init__(self, msg: str):
+        self.msg = msg
 
 
 class IMigrateData(ABC):
@@ -25,6 +35,7 @@ class IMigrateData(ABC):
     async def filter_sql_data(
         model: Type[T], service_method, old_user_id: int, new_user_id: int, keys: Tuple[Any, ...]
     ) -> List[T]:
+        """过滤数据库数据"""
         data: List[model] = await service_method(old_user_id)
         if not data:
             return []
@@ -38,8 +49,10 @@ class IMigrateData(ABC):
 
 
 class MigrateData:
-    async def get_migrate_data(self, old_user_id: int, new_user_id: int) -> Optional[IMigrateData]:
+    async def get_migrate_data(
+        self, old_user_id: int, new_user_id: int, old_players: List["Player"]
+    ) -> Optional[IMigrateData]:
         """获取迁移数据"""
-        if not (old_user_id and new_user_id):
+        if not (old_user_id and new_user_id and old_players):
             return None
         return None
