@@ -108,3 +108,10 @@ class PlayerInfoRepository(BaseService.Component):
             session.add(player)
             await session.commit()
             await session.refresh(player)
+
+    async def get_all_by_user_id(self, user_id: int) -> List[PlayerInfoSQLModel]:
+        async with AsyncSession(self.engine) as session:
+            statement = select(PlayerInfoSQLModel).where(PlayerInfoSQLModel.user_id == user_id)
+            results = await session.exec(statement)
+            players = results.all()
+            return players

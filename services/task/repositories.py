@@ -48,3 +48,9 @@ class TaskRepository(BaseService.Component):
             query = select(Task).where(Task.type == task_type)
             results = await session.exec(query)
             return results.all()
+
+    async def get_all_by_user_id(self, user_id: int) -> List[Task]:
+        async with AsyncSession(self.engine) as session:
+            query = select(Task).where(Task.user_id == user_id)
+            results = await session.exec(query)
+            return results.all()

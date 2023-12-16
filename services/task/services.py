@@ -37,6 +37,9 @@ class TaskServices:
     async def get_all(self):
         return await self._repository.get_all(self.TASK_TYPE)
 
+    async def get_all_by_user_id(self, user_id: int):
+        return await self._repository.get_all_by_user_id(user_id)
+
     def create(self, user_id: int, chat_id: int, status: int, data: Optional[Dict[str, Any]] = None):
         return Task(
             user_id=user_id,
