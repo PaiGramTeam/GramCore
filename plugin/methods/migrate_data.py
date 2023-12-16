@@ -34,18 +34,18 @@ class IMigrateData(ABC):
     @staticmethod
     async def filter_sql_data(
         model: Type[T], service_method, old_user_id: int, new_user_id: int, keys: Tuple[Any, ...]
-    ) -> List[T]:
+    ) -> Tuple[List[T], List[T]]:
         """过滤数据库数据"""
         data: List[model] = await service_method(old_user_id)
         if not data:
-            return []
+            return [], []
         new_data = await service_method(new_user_id)
         new_data_index = [IMigrateData.get_sql_data_by_key(p, keys) for p in new_data]
         need_migrate = []
         for d in data:
             if IMigrateData.get_sql_data_by_key(d, keys) not in new_data_index:
                 need_migrate.append(d)
-        return need_migrate
+        return need_migrate, new_data
 
 
 class MigrateData:
