@@ -1,10 +1,10 @@
 import asyncio
+import sys
 from importlib import import_module
 from pathlib import Path
 from typing import Dict, Generic, List, Optional, TYPE_CHECKING, Type, TypeVar
 
 from arkowrapper import ArkoWrapper
-from async_timeout import timeout
 from typing_extensions import ParamSpec
 
 from gram_core.base_service import BaseServiceType, ComponentType, DependenceType, get_all_services
@@ -17,6 +17,11 @@ if TYPE_CHECKING:
     from gram_core.application import Application
     from gram_core.plugin import PluginType
     from gram_core.builtins.executor import Executor
+
+if sys.version_info >= (3, 11):
+    from asyncio import timeout
+else:
+    from async_timeout import timeout
 
 __all__ = ("DependenceManager", "PluginManager", "ComponentManager", "ServiceManager", "Managers")
 
