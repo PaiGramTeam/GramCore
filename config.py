@@ -121,6 +121,8 @@ class ApplicationConfig(Settings):
     """Telegram API URL"""
     bot_base_file_url: str = "https://api.telegram.org/file/bot"
     """Telegram API File URL"""
+    bot_official: List[str] = ["PaimonMasterBot", "HonkaiStarRail_ZH_Bot"]
+    """PaiGramTeam Bot"""
 
     owner: Optional[int] = None
 
