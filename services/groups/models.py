@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class ChatTypeEnum(str, enum.Enum):
+    SENDER = "sender"
+    PRIVATE = "private"
     GROUP = "group"
     SUPERGROUP = "supergroup"
     CHANNEL = "channel"
