@@ -3,7 +3,10 @@ from typing import List
 from gram_core.base_service import BaseService
 from gram_core.dependence.redisdb import RedisDB
 
-__all__ = ("GroupBanCache", "GroupUpdateCache", )
+__all__ = (
+    "GroupBanCache",
+    "GroupUpdateCache",
+)
 
 
 class GroupBanCache(BaseService.Component):

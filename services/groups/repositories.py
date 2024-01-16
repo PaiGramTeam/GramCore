@@ -52,12 +52,11 @@ class GroupRepository(BaseService.Component):
         async with AsyncSession(self.engine) as session:
             is_left = False
             is_banned = False
-            statement = select(Group).where(
-                Group.is_left == is_left
-            ).where(
-                Group.is_banned == is_banned
-            ).where(
-                (Group.updated_at + timedelta(days=1)) > datetime.now()
+            statement = (
+                select(Group)
+                .where(Group.is_left == is_left)
+                .where(Group.is_banned == is_banned)
+                .where((Group.updated_at + timedelta(days=1)) > datetime.now())
             )
             if limit:
                 statement = statement.limit(limit)
