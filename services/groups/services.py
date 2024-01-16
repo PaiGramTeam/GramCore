@@ -19,6 +19,9 @@ class GroupService(BaseService):
         groups = await self._repository.get_all(is_banned=True)
         for group in groups:
             await self._ban_cache.set(group.chat_id)
+        groups = await self._repository.get_no_need_update(limit=0)
+        for group in groups:
+            await self._update_cache.set(group.chat_id)
 
     async def get_group_by_id(self, chat_id: int) -> Optional[Group]:
         """从数据库获取群组信息
@@ -46,9 +49,6 @@ class GroupService(BaseService):
 
     async def get_ban_list(self) -> List[int]:
         return await self._ban_cache.get_all()
-
-    async def get_need_update(self, limit: int = 10) -> List[Group]:
-        return await self._repository.get_need_update(limit)
 
     async def is_need_update(self, chat_id: int) -> bool:
         return not (await self._update_cache.is_member(chat_id))

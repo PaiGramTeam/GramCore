@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Optional, List
 
 from sqlmodel import select
@@ -47,10 +48,18 @@ class GroupRepository(BaseService.Component):
             results = await session.exec(statement)
             return results.all()
 
-    async def get_need_update(self, limit: int = 10) -> List[Group]:
+    async def get_no_need_update(self, limit: int = 10) -> List[Group]:
         async with AsyncSession(self.engine) as session:
             is_left = False
             is_banned = False
-            statement = select(Group).where(Group.is_left == is_left).where(Group.is_banned == is_banned).limit(limit)
+            statement = select(Group).where(
+                Group.is_left == is_left
+            ).where(
+                Group.is_banned == is_banned
+            ).where(
+                (Group.updated_at + timedelta(days=1)) > datetime.now()
+            )
+            if limit:
+                statement = statement.limit(limit)
             results = await session.exec(statement)
             return results.all()
