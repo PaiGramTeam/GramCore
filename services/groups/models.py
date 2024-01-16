@@ -37,9 +37,13 @@ class Group(SQLModel):
     is_left: int = Field(sa_column=Column(Integer(), default=0))
     is_banned: int = Field(sa_column=Column(Integer(), default=0))
 
-    @staticmethod
-    def from_chat(chat: "Chat") -> "Group":
-        return Group(
+
+class GroupDataBase(Group, table=True):
+    __tablename__ = "groups"
+
+    @classmethod
+    def from_chat(cls, chat: "Chat") -> "GroupDataBase":
+        return cls(
             chat_id=chat.id,
             type=ChatTypeEnum(chat.type),
             title=chat.effective_name,
@@ -52,7 +56,3 @@ class Group(SQLModel):
             is_left=0,
             is_banned=0,
         )
-
-
-class GroupDataBase(Group, table=True):
-    __tablename__ = "groups"
