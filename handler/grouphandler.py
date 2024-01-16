@@ -104,6 +104,8 @@ class GroupHandler(TypeHandler[UT, CCT]):
             await self.group_check_callback(update, _)
         if update.effective_user:
             await self.user_check_callback(update, _)
+        if update.effective_message and update.effective_message.sender_chat:
+            await self.sender_check_callback(update, _)
 
     async def user_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
@@ -112,13 +114,20 @@ class GroupHandler(TypeHandler[UT, CCT]):
             logger.debug("用户 %s[%s] 在黑名单中，拒绝响应", user.full_name, user.id)
             raise ApplicationHandlerStop
 
+    async def sender_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
+        sender = update.effective_message.sender_chat
+        group_service = await self._group_service()
+        if await group_service.is_banned(sender.id):
+            logger.debug("会话 %s[%s] 在黑名单中，拒绝响应", sender.effective_name, sender.id)
+            raise ApplicationHandlerStop
+
     async def group_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         chat = update.effective_chat
         chat_id = chat.id
         group_service = await self._group_service()
         async with self._lock:
             if await group_service.is_banned(chat_id):
-                logger.info("会话 %s[%s] 在黑名单中，尝试退出", chat.title, chat_id)
+                logger.info("会话 %s[%s] 在黑名单中，尝试退出", chat.effective_name, chat_id)
                 self.application.job_queue.run_once(
                     callback=self.exit_group_job,
                     when=1,
