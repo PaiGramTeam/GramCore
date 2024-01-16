@@ -31,6 +31,8 @@ class GroupService(BaseService):
         return await self._repository.get_by_chat_id(chat_id)
 
     async def remove(self, group: Group):
+        await self._update_cache.remove(group.chat_id)
+        await self._ban_cache.remove(group.chat_id)
         return await self._repository.remove(group)
 
     async def update_cache(self, group: Group):
