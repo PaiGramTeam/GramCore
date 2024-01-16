@@ -37,18 +37,20 @@ class Group(SQLModel):
     is_left: int = Field(sa_column=Column(Integer(), default=0))
     is_banned: int = Field(sa_column=Column(Integer(), default=0))
 
-    @classmethod
-    def from_chat(cls, chat: "Chat") -> "Group":
-        return cls(
+    @staticmethod
+    def from_chat(chat: "Chat") -> "Group":
+        return Group(
             chat_id=chat.id,
             type=ChatTypeEnum(chat.type),
-            title=chat.title,
+            title=chat.effective_name,
             description=chat.description,
             username=chat.username,
             big_photo_id=chat.photo.big_file_id if chat.photo else None,
             small_photo_id=chat.photo.small_file_id if chat.photo else None,
             created_at=datetime.now(),
             updated_at=datetime.now(),
+            is_left=0,
+            is_banned=0,
         )
 
 
