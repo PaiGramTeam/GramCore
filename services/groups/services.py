@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from gram_core.base_service import BaseService
-from gram_core.services.groups.cache import GroupBanCache
+from gram_core.services.groups.cache import GroupBanCache, GroupUpdateCache
 from gram_core.services.groups.models import GroupDataBase as Group
 from gram_core.services.groups.repositories import GroupRepository
 
@@ -9,9 +9,10 @@ __all__ = "GroupService"
 
 
 class GroupService(BaseService):
-    def __init__(self, group_repository: GroupRepository, cache: GroupBanCache):
+    def __init__(self, group_repository: GroupRepository, ban_cache: GroupBanCache, update_cache: GroupUpdateCache):
         self._repository = group_repository
-        self._ban_cache = cache
+        self._ban_cache = ban_cache
+        self._update_cache = update_cache
 
     async def initialize(self):
         await self._ban_cache.remove_all()
@@ -47,3 +48,6 @@ class GroupService(BaseService):
 
     async def get_need_update(self, limit: int = 10) -> List[Group]:
         return await self._repository.get_need_update(limit)
+
+    async def is_need_update(self, chat_id: int) -> bool:
+        return not (await self._update_cache.is_member(chat_id))
