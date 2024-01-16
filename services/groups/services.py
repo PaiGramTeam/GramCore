@@ -44,3 +44,6 @@ class GroupService(BaseService):
 
     async def get_ban_list(self) -> List[int]:
         return await self._ban_cache.get_all()
+
+    async def get_need_update(self, limit: int = 10) -> List[Group]:
+        return await self._repository.get_need_update(limit)
