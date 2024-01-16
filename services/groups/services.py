@@ -36,7 +36,6 @@ class GroupService(BaseService):
         return await self._repository.remove(group)
 
     async def update_cache(self, group: Group):
-        await self._update_cache.set(group.chat_id)
         if group.is_banned:
             await self._ban_cache.set(group.chat_id)
         elif await self._ban_cache.ismember(group.chat_id):
@@ -62,6 +61,12 @@ class GroupService(BaseService):
 
     async def is_need_update(self, chat_id: int) -> bool:
         return not (await self._update_cache.is_member(chat_id))
+
+    async def set_update(self, chat_id: int) -> bool:
+        return await self._update_cache.set(chat_id)
+
+    async def remove_update(self, chat_id: int) -> bool:
+        return await self._update_cache.remove(chat_id)
 
     async def join(self, chat_id: int) -> bool:
         group = await self.get_group_by_id(chat_id)

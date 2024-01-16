@@ -95,7 +95,11 @@ class GroupHandler(TypeHandler[UT, CCT]):
         assert isinstance(context.job.data, Chat)
         chat: "Chat" = context.job.data
         group_service = await self._group_service()
-        await self.update_group(context.bot, group_service, chat)
+        try:
+            await self.update_group(context.bot, group_service, chat)
+        except Exception as e:
+            await group_service.remove_update(chat.id)
+            raise e
 
     async def message_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         if update.inline_query is not None:
@@ -138,6 +142,7 @@ class GroupHandler(TypeHandler[UT, CCT]):
             if update.effective_chat.type not in [ChatType.GROUP, ChatType.SUPERGROUP, ChatType.CHANNEL]:
                 return
             if await group_service.is_need_update(chat_id):
+                await self.group_service.set_update(chat_id)
                 self.application.job_queue.run_once(
                     callback=self.update_group_job,
                     when=1,
