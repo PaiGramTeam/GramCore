@@ -2,11 +2,11 @@ from typing import List, Optional
 
 from gram_core.base_service import BaseService
 from gram_core.config import config
-from gram_core.services.users.cache import UserAdminCache
+from gram_core.services.users.cache import UserAdminCache, UserBanCache
 from gram_core.services.users.models import PermissionsEnum, UserDataBase as User
 from gram_core.services.users.repositories import UserRepository
 
-__all__ = ("UserService", "UserAdminService")
+__all__ = ("UserService", "UserAdminService", "UserBanService")
 
 from utils.log import logger
 
@@ -35,6 +35,7 @@ class UserAdminService(BaseService):
         self._cache = cache
 
     async def initialize(self):
+        await self._cache.remove_all()
         owner = config.owner
         if owner:
             user = await self.user_repository.get_by_user_id(owner)
@@ -80,4 +81,46 @@ class UserAdminService(BaseService):
             user.permissions = PermissionsEnum.PUBLIC
             await self.user_repository.update(user)
             return await self._cache.remove(user.user_id)
+        return False
+
+
+class UserBanService(BaseService):
+    def __init__(self, user_repository: UserRepository, cache: UserBanCache):
+        self.user_repository = user_repository
+        self._cache = cache
+
+    async def initialize(self):
+        await self._cache.remove_all()
+        users = await self.user_repository.get_all(is_public=True, is_banned=True)
+        for user in users:
+            await self._cache.set(user.user_id)
+
+    async def is_banned(self, user_id: int) -> bool:
+        return await self._cache.ismember(user_id)
+
+    async def get_ban_list(self) -> List[int]:
+        return await self._cache.get_all()
+
+    async def add_ban(self, user_id: int) -> bool:
+        user = await self.user_repository.get_by_user_id(user_id)
+        if user:
+            if user.permissions != PermissionsEnum.PUBLIC:
+                raise PermissionError("无法操作管理员")
+            if not user.is_banned:
+                user.is_banned = True
+                await self.user_repository.update(user)
+        else:
+            user = User(user_id=user_id, permissions=PermissionsEnum.PUBLIC, is_banned=True)
+            await self.user_repository.add(user)
+        return await self._cache.set(user_id)
+
+    async def del_ban(self, user_id: int) -> bool:
+        user = await self.user_repository.get_by_user_id(user_id)
+        if user:
+            if user.permissions != PermissionsEnum.PUBLIC:
+                raise PermissionError("无法操作管理员")
+            if user.is_banned:
+                user.is_banned = False
+                await self.user_repository.update(user)
+                return await self._cache.remove(user.user_id)
         return False

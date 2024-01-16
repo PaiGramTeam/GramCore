@@ -9,6 +9,7 @@ from telegram.ext import ContextTypes, ApplicationHandlerStop, TypeHandler, Call
 from gram_core.error import ServiceNotFoundError
 from gram_core.services.groups.models import GroupDataBase as Group
 from gram_core.services.groups.services import GroupService
+from gram_core.services.users.services import UserBanService
 
 from utils.log import logger
 
@@ -27,7 +28,8 @@ class GroupHandler(TypeHandler[UT, CCT]):
     def __init__(self, application: "Application"):
         self.application = application
         self.group_service: Optional["GroupService"] = None
-        super().__init__(Update, self.group_check_callback)
+        self.user_ban_service: Optional["UserBanService"] = None
+        super().__init__(Update, self.message_check_callback)
 
     async def _group_service(self) -> "GroupService":
         async with self.__lock:
@@ -38,6 +40,16 @@ class GroupHandler(TypeHandler[UT, CCT]):
                 raise ServiceNotFoundError("GroupService")
             self.group_service = group_service
             return self.group_service
+
+    async def _user_ban_service(self) -> "UserBanService":
+        async with self.__lock:
+            if self.user_ban_service is not None:
+                return self.user_ban_service
+            user_ban_service: UserBanService = self.application.managers.services_map.get(UserBanService, None)
+            if user_ban_service is None:
+                raise ServiceNotFoundError("UserBanService")
+            self.user_ban_service = user_ban_service
+            return self.user_ban_service
 
     @staticmethod
     async def leave_chat(bot: "Bot", chat_id: int) -> bool:
@@ -75,11 +87,24 @@ class GroupHandler(TypeHandler[UT, CCT]):
         group_service = await self._group_service()
         await self.update_group(context.bot, group_service, chat)
 
-    async def group_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
+    async def message_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         if update.inline_query is not None:
             return
-        if not update.effective_chat:
-            return
+        if update.effective_chat:
+            await self.group_check_callback(update, _)
+        if update.effective_user:
+            await self.user_check_callback(update, _)
+
+    async def user_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
+        user = update.effective_user
+        user_id = user.id
+        user_ban_service = await self._user_ban_service()
+        async with self._lock:
+            if await user_ban_service.is_banned(user_id):
+                logger.debug("用户 %s[%s] 在黑名单中，拒绝响应", user.full_name, user_id)
+                raise ApplicationHandlerStop
+
+    async def group_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         chat = update.effective_chat
         chat_id = chat.id
         group_service = await self._group_service()
