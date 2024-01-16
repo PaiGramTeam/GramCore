@@ -40,9 +40,9 @@ class GroupService(BaseService):
         elif await self._ban_cache.ismember(group.chat_id):
             await self._ban_cache.remove(group.chat_id)
 
-    async def update_group(self, group: Group):
+    async def update_group(self, group: Group) -> Group:
         await self.update_cache(group)
-        return await self._repository.add(group)
+        return await self._repository.update(group)
 
     async def is_banned(self, chat_id: int) -> bool:
         return await self._ban_cache.ismember(chat_id)
@@ -52,3 +52,19 @@ class GroupService(BaseService):
 
     async def is_need_update(self, chat_id: int) -> bool:
         return not (await self._update_cache.is_member(chat_id))
+
+    async def join(self, chat_id: int) -> bool:
+        group = await self.get_group_by_id(chat_id)
+        if group and group.is_left:
+            group.is_left = False
+            await self.update_group(group)
+            return True
+        return False
+
+    async def leave(self, chat_id: int) -> bool:
+        group = await self.get_group_by_id(chat_id)
+        if group and not group.is_left:
+            group.is_left = True
+            await self.update_group(group)
+            return True
+        return False

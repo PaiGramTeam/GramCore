@@ -31,6 +31,15 @@ class GroupHandler(TypeHandler[UT, CCT]):
         self.user_ban_service: Optional["UserBanService"] = None
         super().__init__(Update, self.message_check_callback)
 
+    def check_update(self, update: object) -> bool:
+        if isinstance(update, Update):
+            if update.my_chat_member or update.chat_member:
+                return False
+            if update.message and (update.message.new_chat_members or update.message.left_chat_member):
+                return False
+            return True
+        return False
+
     async def _group_service(self) -> "GroupService":
         async with self.__lock:
             if self.group_service is not None:
@@ -76,9 +85,10 @@ class GroupHandler(TypeHandler[UT, CCT]):
             group.title = new_group.title
             group.username = new_group.username
             group.updated_at = new_group.updated_at
+            group.is_left = False
         else:
             group = new_group
-        await group_service.update_group(group)
+        group = await group_service.update_group(group)
         logger.success("更新会话信息成功: %s[%s]", group.title, group.chat_id)
 
     async def update_group_job(self, context: "CallbackContext"):
@@ -97,12 +107,10 @@ class GroupHandler(TypeHandler[UT, CCT]):
 
     async def user_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
-        user_id = user.id
         user_ban_service = await self._user_ban_service()
-        async with self._lock:
-            if await user_ban_service.is_banned(user_id):
-                logger.debug("用户 %s[%s] 在黑名单中，拒绝响应", user.full_name, user_id)
-                raise ApplicationHandlerStop
+        if await user_ban_service.is_banned(user.id):
+            logger.debug("用户 %s[%s] 在黑名单中，拒绝响应", user.full_name, user.id)
+            raise ApplicationHandlerStop
 
     async def group_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
         chat = update.effective_chat
