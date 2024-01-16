@@ -56,3 +56,19 @@ class GroupDataBase(Group, table=True):
             is_left=0,
             is_banned=0,
         )
+
+    @classmethod
+    def from_id(cls, chat_id: int) -> "GroupDataBase":
+        return cls(
+            chat_id=chat_id,
+            type=ChatTypeEnum.PRIVATE,
+            title="",
+            description=None,
+            username=None,
+            big_photo_id=None,
+            small_photo_id=None,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            is_left=0,
+            is_banned=0,
+        )

@@ -47,6 +47,14 @@ class GroupService(BaseService):
     async def is_banned(self, chat_id: int) -> bool:
         return await self._ban_cache.ismember(chat_id)
 
+    async def del_ban(self, chat_id: int) -> bool:
+        group = await self.get_group_by_id(chat_id)
+        if group and group.is_banned:
+            group.is_banned = False
+            await self.update_group(group)
+            return True
+        return False
+
     async def get_ban_list(self) -> List[int]:
         return await self._ban_cache.get_all()
 
