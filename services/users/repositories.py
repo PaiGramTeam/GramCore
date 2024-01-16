@@ -5,7 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
 from gram_core.dependence.database import Database
-from gram_core.services.users.models import UserDataBase as User
+from gram_core.services.users.models import UserDataBase as User, PermissionsEnum
 
 __all__ = ("UserRepository",)
 
@@ -37,8 +37,12 @@ class UserRepository(BaseService.Component):
             await session.delete(user)
             await session.commit()
 
-    async def get_all(self) -> List[User]:
+    async def get_all(self, is_public: bool = None, is_banned: bool = None) -> List[User]:
         async with AsyncSession(self.engine) as session:
             statement = select(User)
+            if is_public:
+                statement = statement.where(User.permissions == PermissionsEnum.PUBLIC)
+            if is_banned is not None:
+                statement = statement.where(User.is_banned == is_banned)
             results = await session.exec(statement)
             return results.all()
