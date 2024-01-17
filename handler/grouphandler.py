@@ -4,7 +4,7 @@ from typing import TypeVar, Optional, TYPE_CHECKING
 from telegram import Update, Chat
 from telegram.constants import ChatType
 from telegram.error import TelegramError
-from telegram.ext import ContextTypes, ApplicationHandlerStop, TypeHandler, CallbackContext
+from telegram.ext import ContextTypes, ApplicationHandlerStop, BaseHandler, CallbackContext
 
 from gram_core.error import ServiceNotFoundError
 from gram_core.services.groups.models import GroupDataBase as Group
@@ -21,7 +21,7 @@ UT = TypeVar("UT")
 CCT = TypeVar("CCT", bound="CallbackContext[Any, Any, Any, Any]")
 
 
-class GroupHandler(TypeHandler[UT, CCT]):
+class GroupHandler(BaseHandler[UT, CCT]):
     _lock = asyncio.Lock()
     __lock = asyncio.Lock()
 
@@ -29,7 +29,7 @@ class GroupHandler(TypeHandler[UT, CCT]):
         self.application = application
         self.group_service: Optional["GroupService"] = None
         self.user_ban_service: Optional["UserBanService"] = None
-        super().__init__(Update, self.message_check_callback)
+        super().__init__(self.message_check_callback)
 
     def check_update(self, update: object) -> bool:
         if isinstance(update, Update):
@@ -65,7 +65,7 @@ class GroupHandler(TypeHandler[UT, CCT]):
         try:
             return await bot.leave_chat(chat_id)
         except TelegramError as e:
-            logger.warning("退出会话失败: %s", str(e))
+            logger.warning("退出会话失败: %s", e.message)
 
     @staticmethod
     async def exit_group_job(context: "CallbackContext"):

@@ -1,16 +1,13 @@
 import asyncio
-from typing import TypeVar, Optional
+from typing import Optional
 
 from telegram import Update
 from telegram.ext import ContextTypes, ApplicationHandlerStop, TypeHandler
 
 from utils.log import logger
 
-UT = TypeVar("UT")
-CCT = TypeVar("CCT", bound="CallbackContext[Any, Any, Any, Any]")
 
-
-class LimiterHandler(TypeHandler[UT, CCT]):
+class LimiterHandler(TypeHandler):
     _lock = asyncio.Lock()
 
     def __init__(
