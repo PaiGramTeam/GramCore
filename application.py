@@ -4,7 +4,7 @@ import signal
 from functools import wraps
 from signal import SIGABRT, SIGINT, SIGTERM, signal as signal_func
 from ssl import SSLZeroReturnError
-from typing import Callable, List, Optional, TYPE_CHECKING, TypeVar
+from typing import Callable, List, Optional, TYPE_CHECKING, TypeVar, Union
 
 import pytz
 import uvicorn
@@ -32,6 +32,8 @@ from utils.models.signal import Singleton
 if TYPE_CHECKING:
     from asyncio import Task
     from types import FrameType
+    from uvicorn._types import ASGIApplication
+    from gram_core.ratelimiter import T_CalledAPIFunc
 
 __all__ = ("Application",)
 
@@ -47,6 +49,7 @@ class Application(Singleton):
 
     _startup_funcs: List[Callable] = []
     _shutdown_funcs: List[Callable] = []
+    _called_api_funcs: List["T_CalledAPIFunc"] = []
 
     def __init__(self, managers: "Managers", telegram: "TelegramApplication", web_server: "Server") -> None:
         self._running = False
@@ -59,6 +62,7 @@ class Application(Singleton):
     @classmethod
     def build(cls):
         managers = Managers()
+        rate_limiter = RateLimiter()
         telegram = (
             TelegramApplicationBuilder()
             .get_updates_read_timeout(application_config.update_read_timeout)
@@ -79,7 +83,7 @@ class Application(Singleton):
                     pool_timeout=application_config.pool_timeout,
                 )
             )
-            .rate_limiter(RateLimiter())
+            .rate_limiter(rate_limiter)
             .build()
         )
         web_server = Server(
@@ -90,7 +94,9 @@ class Application(Singleton):
                 log_config=None,
             )
         )
-        return cls(managers, telegram, web_server)
+        instance = cls(managers, telegram, web_server)
+        rate_limiter.set_application(instance)
+        return instance
 
     @property
     def running(self) -> bool:
@@ -99,7 +105,7 @@ class Application(Singleton):
             return self._running
 
     @property
-    def web_app(self) -> FastAPI:
+    def web_app(self) -> Union["ASGIApplication", Callable, str]:
         """fastapi app"""
         return self.web_server.config.app
 
@@ -289,3 +295,20 @@ class Application(Singleton):
             return func(*args, **kwargs)
 
         return wrapper
+
+    def on_called_api(self, func: "T_CalledAPIFunc") -> Callable[P, R]:
+        """注册一个在 BOT 调用 Telegram API 后执行的函数"""
+
+        if func not in self._called_api_funcs:
+            self._called_api_funcs.append(func)
+
+        # noinspection PyTypeChecker
+        @wraps(func, assigned=WRAPPER_ASSIGNMENTS)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    def get_called_api_funcs(self) -> List["T_CalledAPIFunc"]:
+        """获取所有在 BOT 调用 Telegram API 后执行的函数"""
+        return self._called_api_funcs

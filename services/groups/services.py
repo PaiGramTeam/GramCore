@@ -5,7 +5,7 @@ from gram_core.services.groups.cache import GroupBanCache, GroupUpdateCache
 from gram_core.services.groups.models import GroupDataBase as Group
 from gram_core.services.groups.repositories import GroupRepository
 
-__all__ = ("GroupService", )
+__all__ = ("GroupService",)
 
 
 class GroupService(BaseService):
