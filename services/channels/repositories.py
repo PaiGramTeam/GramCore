@@ -41,8 +41,10 @@ class ChannelAliasRepository(BaseService.Component):
             await session.delete(channel_alias)
             await session.commit()
 
-    async def get_all(self) -> List[ChannelAlias]:
+    async def get_all(self, is_valid: Optional[bool] = None) -> List[ChannelAlias]:
         async with AsyncSession(self.engine) as session:
             statement = select(ChannelAlias)
+            if is_valid is not None:
+                statement = statement.where(ChannelAlias.is_valid == is_valid)
             results = await session.exec(statement)
             return results.all()

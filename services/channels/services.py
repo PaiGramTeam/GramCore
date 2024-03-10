@@ -14,7 +14,7 @@ class ChannelAliasService(BaseService):
         self._cache = cache
 
     async def initialize(self):
-        channels = await self.channel_alias_repository.get_all()
+        channels = await self.channel_alias_repository.get_all(is_valid=True)
         for channel in channels:
             if channel.chat_id and channel.user_id:
                 await self._cache.set_data(channel.chat_id, channel.user_id)
