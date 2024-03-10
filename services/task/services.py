@@ -12,6 +12,7 @@ __all__ = [
     "TaskResinServices",
     "TaskRealmServices",
     "TaskExpeditionServices",
+    "TaskDailyServices",
 ]
 
 
@@ -69,3 +70,7 @@ class TaskExpeditionServices(BaseService, TaskServices):
 
 class TaskCardServices(BaseService, TaskServices):
     TASK_TYPE = TaskTypeEnum.CARD
+
+
+class TaskDailyServices(BaseService, TaskServices):
+    TASK_TYPE = TaskTypeEnum.DAILY

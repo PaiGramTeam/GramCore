@@ -26,6 +26,7 @@ class TaskTypeEnum(int, enum.Enum):
     EXPEDITION = 3  # 委托
     TRANSFORMER = 4  # 参量质变仪
     CARD = 5  # 生日画片
+    DAILY = 6  # 每日任务
 
 
 class Task(SQLModel, table=True):
