@@ -19,25 +19,29 @@ class ChannelAliasService(BaseService):
             if channel.chat_id and channel.user_id:
                 await self._cache.set_data(channel.chat_id, channel.user_id)
 
-    async def get_by_chat_id(self, chat_id: int) -> Optional[ChannelAlias]:
-        return await self.channel_alias_repository.get_by_chat_id(chat_id)
+    async def get_by_chat_id(self, chat_id: int, is_valid: Optional[bool] = None) -> Optional[ChannelAlias]:
+        return await self.channel_alias_repository.get_by_chat_id(chat_id, is_valid)
 
-    async def get_uid_by_chat_id(self, chat_id: int) -> Optional[int]:
+    async def get_uid_by_chat_id(self, chat_id: int, is_valid: Optional[bool] = None) -> Optional[int]:
         if uid := await self._cache.get_data(chat_id):
             return uid
-        if channel := await self.get_by_chat_id(chat_id):
+        if channel := await self.get_by_chat_id(chat_id, is_valid):
             await self._cache.set_data(channel.chat_id, channel.user_id)
             return channel.user_id
         await self._cache.set_data(chat_id, 0)
         return None
 
-    async def add_channel_alias(self, channel_alias: ChannelAlias):
-        await self.channel_alias_repository.add(channel_alias)
+    async def add_channel_alias(self, channel_alias: ChannelAlias) -> ChannelAlias:
+        channel_alias = await self.channel_alias_repository.add(channel_alias)
         await self._cache.set_data(channel_alias.chat_id, channel_alias.user_id)
+        return channel_alias
 
     async def update_channel_alias(self, channel_alias: ChannelAlias) -> ChannelAlias:
         channel_alias = await self.channel_alias_repository.update(channel_alias)
-        await self._cache.set_data(channel_alias.chat_id, channel_alias.user_id)
+        if channel_alias.is_valid:
+            await self._cache.set_data(channel_alias.chat_id, channel_alias.user_id)
+        else:
+            await self._cache.delete(channel_alias.chat_id)
         return channel_alias
 
     async def remove_channel_alias(self, channel_alias: ChannelAlias):

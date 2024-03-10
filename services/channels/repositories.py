@@ -14,16 +14,20 @@ class ChannelAliasRepository(BaseService.Component):
     def __init__(self, database: Database):
         self.engine = database.engine
 
-    async def get_by_chat_id(self, chat_id: int) -> Optional[ChannelAlias]:
+    async def get_by_chat_id(self, chat_id: int, is_valid: Optional[bool] = None) -> Optional[ChannelAlias]:
         async with AsyncSession(self.engine) as session:
             statement = select(ChannelAlias).where(ChannelAlias.chat_id == chat_id)
+            if is_valid is not None:
+                statement = statement.where(ChannelAlias.is_valid == is_valid)
             results = await session.exec(statement)
             return results.first()
 
-    async def add(self, channel_alias: ChannelAlias):
+    async def add(self, channel_alias: ChannelAlias) -> ChannelAlias:
         async with AsyncSession(self.engine) as session:
             session.add(channel_alias)
             await session.commit()
+            await session.refresh(channel_alias)
+            return channel_alias
 
     async def update(self, channel_alias: ChannelAlias) -> ChannelAlias:
         async with AsyncSession(self.engine) as session:

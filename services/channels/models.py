@@ -14,6 +14,7 @@ class ChannelAlias(SQLModel):
     id: Optional[int] = Field(default=None, sa_column=Column(Integer(), primary_key=True, autoincrement=True))
     chat_id: int = Field(sa_column=Column(BigInteger(), unique=True))
     user_id: int = Field(sa_column=Column(BigInteger()))
+    is_valid: bool = Field(default=True)
     created_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
     updated_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
 

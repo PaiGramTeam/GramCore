@@ -17,7 +17,7 @@ class GetRealUserId:
                     ChannelAliasService, None
                 )
                 if channel_alias_service:
-                    if uid := await channel_alias_service.get_uid_by_chat_id(channel.id):
+                    if uid := await channel_alias_service.get_uid_by_chat_id(channel.id, is_valid=True):
                         return uid
         user = update.effective_user
         return user.id
