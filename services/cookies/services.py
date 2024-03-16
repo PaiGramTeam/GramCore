@@ -107,7 +107,12 @@ class PublicCookiesService:
                 continue
             try:
                 await self.check_public_cookie(region, cookies, public_id)
-                logger.info("用户 user_id[%s] 请求用户 user_id[%s] 的公共Cookies 该Cookies使用次数为%s次 ", user_id, public_id, count)
+                logger.info(
+                    "用户 user_id[%s] 请求用户 user_id[%s] 的公共Cookies 该Cookies使用次数为%s次 ",
+                    user_id,
+                    public_id,
+                    count,
+                )
                 return cookies
             except NeedContinue:
                 continue
@@ -118,7 +123,9 @@ class PublicCookiesService:
             cookies.status = status
             await self._repository.update(cookies)
             await self._cache.delete_public_cookies(cookies.user_id, cookies.region)
-            logger.info("用户 user_id[%s] 反馈用户 user_id[%s] 的Cookies状态为 %s", user_id, cookies.user_id, status.name)
+            logger.info(
+                "用户 user_id[%s] 反馈用户 user_id[%s] 的Cookies状态为 %s", user_id, cookies.user_id, status.name
+            )
         else:
             logger.info("用户 user_id[%s] 撤销一次公共Cookies计数", user_id)
 

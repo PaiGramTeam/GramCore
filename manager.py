@@ -37,7 +37,11 @@ def _load_module(path: Path) -> None:
             import_module(pkg)
         except Exception as e:
             logger.exception(
-                '在导入 "%s" 的过程中遇到了错误 [red bold]%s[/]', pkg, type(e).__name__, exc_info=e, extra={"markup": True}
+                '在导入 "%s" 的过程中遇到了错误 [red bold]%s[/]',
+                pkg,
+                type(e).__name__,
+                exc_info=e,
+                extra={"markup": True},
             )
             raise SystemExit from e
 
@@ -205,7 +209,9 @@ class ServiceManager(Manager[BaseServiceType]):
         ):
             _load_module(path)
 
-        for service in filter(lambda x: not x.is_component and not x.is_dependence, get_all_services()):  # 遍历所有服务类
+        for service in filter(
+            lambda x: not x.is_component and not x.is_dependence, get_all_services()
+        ):  # 遍历所有服务类
             instance = await self._initialize_service(service)
 
             self._lib[service] = instance

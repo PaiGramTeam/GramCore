@@ -1,4 +1,5 @@
 """插件"""
+
 import asyncio
 from abc import ABC
 from dataclasses import asdict
@@ -292,7 +293,9 @@ class _Conversation(_Plugin, ConversationFuncs, ABC):
                     temp_dict = {"entry_points": entry_points, "states": states, "fallbacks": fallbacks}
                     reason = map(lambda x: f"'{x[0]}'", filter(lambda x: not x[1], temp_dict.items()))
                     logger.warning(
-                        "'%s' 因缺少 '%s' 而生成无法生成 ConversationHandler", self.__class__.__name__, ", ".join(reason)
+                        "'%s' 因缺少 '%s' 而生成无法生成 ConversationHandler",
+                        self.__class__.__name__,
+                        ", ".join(reason),
                     )
         return self._handlers
 
