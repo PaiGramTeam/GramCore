@@ -36,6 +36,7 @@ class Group(SQLModel):
     updated_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
     is_left: int = Field(sa_column=Column(Integer(), default=0))
     is_banned: int = Field(sa_column=Column(Integer(), default=0))
+    is_ignore: int = Field(sa_column=Column(Integer(), default=0))
 
 
 class GroupDataBase(Group, table=True):
@@ -55,6 +56,7 @@ class GroupDataBase(Group, table=True):
             updated_at=datetime.now(),
             is_left=0,
             is_banned=0,
+            is_ignore=0,
         )
 
     @classmethod
@@ -71,4 +73,5 @@ class GroupDataBase(Group, table=True):
             updated_at=datetime.now(),
             is_left=0,
             is_banned=0,
+            is_ignore=0,
         )

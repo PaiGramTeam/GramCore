@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from types import FrameType
     from uvicorn._types import ASGIApplication
     from gram_core.ratelimiter import T_CalledAPIFunc
+    from gram_core.handler.hookhandler import T_PreprocessorsFunc
 
 __all__ = ("Application",)
 
@@ -51,6 +52,7 @@ class Application(Singleton):
     _startup_funcs: List[Callable] = []
     _shutdown_funcs: List[Callable] = []
     _called_api_funcs: List["T_CalledAPIFunc"] = []
+    _preprocessors_funcs: List["T_PreprocessorsFunc"] = []
 
     def __init__(self, managers: "Managers", telegram: "TelegramApplication", web_server: "Server") -> None:
         self._running = False
@@ -313,3 +315,20 @@ class Application(Singleton):
     def get_called_api_funcs(self) -> List["T_CalledAPIFunc"]:
         """获取所有在 BOT 调用 Telegram API 后执行的函数"""
         return self._called_api_funcs
+
+    def run_preprocessor(self, func: "T_PreprocessorsFunc") -> Callable[P, R]:
+        """注册一个在 BOT 调用插件函数前执行的函数"""
+
+        if func not in self._preprocessors_funcs:
+            self._preprocessors_funcs.append(func)
+
+        # noinspection PyTypeChecker
+        @wraps(func, assigned=WRAPPER_ASSIGNMENTS)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    def get_preprocessors_funcs(self) -> List["T_PreprocessorsFunc"]:
+        """获取所有在 BOT 调用插件函数前执行的函数"""
+        return self._preprocessors_funcs

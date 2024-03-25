@@ -77,6 +77,8 @@ WRAPPER_ASSIGNMENTS = list(
 class HandlerData:
     type: Type[HandlerType]
     admin: bool
+    player: bool
+    cookie: bool
     kwargs: Dict[str, Any]
     dispatcher: Optional[Type["AbstractDispatcher"]] = None
 
@@ -97,9 +99,20 @@ class _Handler:
 
         cls._type = getattr(Module, handler_name, None)
 
-    def __init__(self, admin: bool = False, dispatcher: Optional[Type["AbstractDispatcher"]] = None, **kwargs) -> None:
+    def __init__(
+        self,
+        admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
+        dispatcher: Optional[Type["AbstractDispatcher"]] = None,
+        **kwargs,
+    ) -> None:
         self.dispatcher = dispatcher
         self.admin = admin
+        self.player = player
+        self.cookie = cookie
+        if cookie:
+            self.player = True
         self.kwargs = kwargs
 
     def __call__(self, func: Callable[P, R]) -> Callable[P, R]:
@@ -107,7 +120,14 @@ class _Handler:
 
         handler_datas = getattr(func, HANDLER_DATA_ATTR_NAME, [])
         handler_datas.append(
-            HandlerData(type=self._type, admin=self.admin, kwargs=self.kwargs, dispatcher=self.dispatcher)
+            HandlerData(
+                type=self._type,
+                admin=self.admin,
+                player=self.player,
+                cookie=self.cookie,
+                kwargs=self.kwargs,
+                dispatcher=self.dispatcher,
+            )
         )
         setattr(func, HANDLER_DATA_ATTR_NAME, handler_datas)
 
@@ -161,10 +181,18 @@ class _Command(_Handler):
         *,
         block: DVInput[bool] = DEFAULT_TRUE,
         admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
         super(_Command, self).__init__(
-            command=command, filters=filters, block=block, admin=admin, dispatcher=dispatcher
+            command=command,
+            filters=filters,
+            block=block,
+            admin=admin,
+            player=player,
+            cookie=cookie,
+            dispatcher=dispatcher,
         )
 
 
@@ -187,9 +215,18 @@ class _Message(_Handler):
         *,
         block: DVInput[bool] = DEFAULT_TRUE,
         admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ) -> None:
-        super(_Message, self).__init__(filters=filters, block=block, admin=admin, dispatcher=dispatcher)
+        super(_Message, self).__init__(
+            filters=filters,
+            block=block,
+            admin=admin,
+            player=player,
+            cookie=cookie,
+            dispatcher=dispatcher,
+        )
 
 
 class _PollAnswer(_Handler):
@@ -233,10 +270,19 @@ class _StringCommand(_Handler):
         command: str,
         *,
         admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
         block: DVInput[bool] = DEFAULT_TRUE,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_StringCommand, self).__init__(command=command, block=block, admin=admin, dispatcher=dispatcher)
+        super(_StringCommand, self).__init__(
+            command=command,
+            block=block,
+            admin=admin,
+            dispatcher=dispatcher,
+            player=player,
+            cookie=cookie,
+        )
 
 
 class _StringRegex(_Handler):
@@ -246,9 +292,18 @@ class _StringRegex(_Handler):
         *,
         block: DVInput[bool] = DEFAULT_TRUE,
         admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
     ):
-        super(_StringRegex, self).__init__(pattern=pattern, block=block, admin=admin, dispatcher=dispatcher)
+        super(_StringRegex, self).__init__(
+            pattern=pattern,
+            block=block,
+            admin=admin,
+            player=player,
+            cookie=cookie,
+            dispatcher=dispatcher,
+        )
 
 
 class _Type(_Handler):
@@ -287,11 +342,19 @@ class handler(_Handler):
         handler_type: Union[Callable[P, "HandlerType"], Type["HandlerType"]],
         *,
         admin: bool = False,
+        player: bool = False,
+        cookie: bool = False,
         dispatcher: Optional[Type["AbstractDispatcher"]] = None,
         **kwargs: P.kwargs,
     ) -> None:
         self._type = handler_type
-        super().__init__(admin=admin, dispatcher=dispatcher, **kwargs)
+        super().__init__(
+            admin=admin,
+            player=player,
+            cookie=cookie,
+            dispatcher=dispatcher,
+            **kwargs,
+        )
 
 
 class ConversationDataType(Enum):
