@@ -10,7 +10,7 @@ __all__ = (
 )
 
 
-class IGroupBanCache:
+class IGroupCache:
     qname = ""
 
     def __init__(self, redis: RedisDB):
@@ -32,11 +32,11 @@ class IGroupBanCache:
         return await self.client.delete(self.qname)
 
 
-class GroupBanCache(BaseService.Component, IGroupBanCache):
+class GroupBanCache(BaseService.Component, IGroupCache):
     qname = "groups:ban"
 
 
-class GroupIgnoreCache(BaseService.Component, IGroupBanCache):
+class GroupIgnoreCache(BaseService.Component, IGroupCache):
     qname = "groups:ignore"
 
 
