@@ -69,5 +69,5 @@ class HookHandler(BaseHandler[Update, CCT]):
         context: "CCT",
     ) -> RT:
         if not await self.run_preprocessors(update, application, check_result, context):
-            raise ApplicationHandlerStop
+            return
         return await self.handler.handle_update(update, application, check_result, context)
