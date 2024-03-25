@@ -38,13 +38,20 @@ class GroupRepository(BaseService.Component):
             await session.delete(group)
             await session.commit()
 
-    async def get_all(self, is_banned: Optional[bool] = None, is_left: Optional[bool] = None) -> List[Group]:
+    async def get_all(
+        self,
+        is_banned: Optional[bool] = None,
+        is_left: Optional[bool] = None,
+        is_ignore: Optional[bool] = None,
+    ) -> List[Group]:
         async with AsyncSession(self.engine) as session:
             statement = select(Group)
             if is_banned is not None:
                 statement = statement.where(Group.is_banned == is_banned)
             if is_left is not None:
                 statement = statement.where(Group.is_left == is_left)
+            if is_ignore is not None:
+                statement = statement.where(Group.is_ignore == is_ignore)
             results = await session.exec(statement)
             return results.all()
 

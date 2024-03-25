@@ -5,14 +5,16 @@ from gram_core.dependence.redisdb import RedisDB
 
 __all__ = (
     "GroupBanCache",
+    "GroupIgnoreCache",
     "GroupUpdateCache",
 )
 
 
-class GroupBanCache(BaseService.Component):
+class IGroupBanCache:
+    qname = ""
+
     def __init__(self, redis: RedisDB):
         self.client = redis.client
-        self.qname = "groups:ban"
 
     async def ismember(self, chat_id: int) -> bool:
         return await self.client.sismember(self.qname, chat_id)
@@ -28,6 +30,14 @@ class GroupBanCache(BaseService.Component):
 
     async def remove_all(self) -> bool:
         return await self.client.delete(self.qname)
+
+
+class GroupBanCache(BaseService.Component, IGroupBanCache):
+    qname = "groups:ban"
+
+
+class GroupIgnoreCache(BaseService.Component, IGroupBanCache):
+    qname = "groups:ignore"
 
 
 class GroupUpdateCache(BaseService.Component):
