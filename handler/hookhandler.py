@@ -54,7 +54,7 @@ class HookHandler(BaseHandler[Update, CCT]):
                 *(processor(update, application, check_result, context, self.handler_data) for processor in processors)
             )
         except ApplicationHandlerStop:
-            logger.info("命令预处理器拦截了一条消息")
+            logger.debug("命令预处理器拦截了一条消息")
             return False
         except Exception as e:
             logger.error("Error while running RunPreProcessors hooks: %s", e)
