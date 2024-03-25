@@ -26,6 +26,7 @@ from telegram.ext import BaseHandler, ConversationHandler, Job, TypeHandler
 from typing_extensions import ParamSpec
 
 from gram_core.handler.adminhandler import AdminHandler
+from gram_core.handler.hookhandler import HookHandler
 from gram_core.plugin._funcs import ConversationFuncs, PluginFuncs
 from gram_core.plugin._handler import ConversationDataType
 from utils.const import WRAPPER_ASSIGNMENTS
@@ -108,9 +109,13 @@ class _Plugin(PluginFuncs):
                                 )
                             else:
                                 self._handlers.append(
-                                    data.type(
-                                        callback=func,
-                                        **data.kwargs,
+                                    HookHandler(
+                                        handler=data.type(
+                                            callback=func,
+                                            **data.kwargs,
+                                        ),
+                                        handler_data=data,
+                                        application=self.application,
                                     )
                                 )
         return self._handlers
@@ -265,9 +270,13 @@ class _Conversation(_Plugin, ConversationFuncs, ABC):
                                 )
                             else:
                                 handlers.append(
-                                    data.type(
-                                        callback=func,
-                                        **data.kwargs,
+                                    HookHandler(
+                                        handler=data.type(
+                                            callback=func,
+                                            **data.kwargs,
+                                        ),
+                                        handler_data=data,
+                                        application=self.application,
                                     )
                                 )
 
