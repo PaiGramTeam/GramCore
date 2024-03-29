@@ -115,3 +115,9 @@ class PlayerInfoRepository(BaseService.Component):
             results = await session.exec(statement)
             players = results.all()
             return players
+
+    async def get_by_player_id(self, player_id: int) -> Optional[PlayerInfoSQLModel]:
+        async with AsyncSession(self.engine) as session:
+            statement = select(PlayerInfoSQLModel).where(PlayerInfoSQLModel.player_id == player_id)
+            results = await session.exec(statement)
+            return results.first()
