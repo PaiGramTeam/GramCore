@@ -8,6 +8,7 @@ __all__ = "HistoryData"
 
 
 class HistoryData(SQLModel, table=True):
+    __tablename__ = "history_data"
     __table_args__ = dict(mysql_charset="utf8mb4", mysql_collate="utf8mb4_general_ci")
     id: Optional[int] = Field(default=None, sa_column=Column(Integer(), primary_key=True, autoincrement=True))
     user_id: int = Field(sa_column=Column(BigInteger(), primary_key=True, index=True))
