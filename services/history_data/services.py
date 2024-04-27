@@ -24,6 +24,9 @@ class HistoryDataBaseServices:
         data.time_updated = datetime.datetime.now()
         return await self._repository.update(data)
 
+    async def get_by_id(self, row_id: int):
+        return await self._repository.get_by_id(row_id)
+
     async def get_by_user_id(self, user_id: int):
         return await self._repository.get_by_user_id(user_id, self.DATA_TYPE)
 

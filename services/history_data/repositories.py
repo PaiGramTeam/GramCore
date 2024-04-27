@@ -31,6 +31,12 @@ class HistoryDataRepository(BaseService.Component):
             await session.refresh(data)
             return data
 
+    async def get_by_id(self, row_id: int) -> Optional[HistoryData]:
+        async with AsyncSession(self.engine) as session:
+            statement = select(HistoryData).where(HistoryData.id == row_id)
+            result = await session.exec(statement)
+            return result.first()
+
     async def get_by_user_id(self, user_id: int, data_type: int) -> List[Optional[HistoryData]]:
         async with AsyncSession(self.engine) as session:
             statement = select(HistoryData).where(HistoryData.user_id == user_id).where(HistoryData.type == data_type)
