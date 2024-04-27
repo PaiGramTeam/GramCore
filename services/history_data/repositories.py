@@ -37,6 +37,17 @@ class HistoryDataRepository(BaseService.Component):
             results = await session.exec(statement)
             return results.all()
 
+    async def get_by_user_id_data_id(self, user_id: int, data_type: int, data_id: int) -> List[Optional[HistoryData]]:
+        async with AsyncSession(self.engine) as session:
+            statement = (
+                select(HistoryData)
+                .where(HistoryData.user_id == user_id)
+                .where(HistoryData.type == data_type)
+                .where(HistoryData.data_id == data_id)
+            )
+            results = await session.exec(statement)
+            return results.all()
+
     async def get_all(self, data_type: int) -> List[HistoryData]:
         async with AsyncSession(self.engine) as session:
             query = select(HistoryData).where(HistoryData.type == data_type)

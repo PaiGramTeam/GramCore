@@ -27,6 +27,9 @@ class HistoryDataBaseServices:
     async def get_by_user_id(self, user_id: int):
         return await self._repository.get_by_user_id(user_id, self.DATA_TYPE)
 
+    async def get_by_user_id_data_id(self, user_id: int, data_id: int):
+        return await self._repository.get_by_user_id_data_id(user_id, self.DATA_TYPE, data_id)
+
     async def get_all(self):
         return await self._repository.get_all(self.DATA_TYPE)
 
