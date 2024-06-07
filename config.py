@@ -98,7 +98,13 @@ class ReloadConfig(Settings):
 
 
 class NoticeConfig(Settings):
+    """bot自称"""
+    bot_name: str = "派蒙"
+    user_not_found: str = f"{bot_name}没有找到您所绑定的账号信息，请先私聊{bot_name}绑定账号"
+    """权限不匹配"""
     user_mismatch: str = "再乱点我叫西风骑士团、千岩军、天领奉行、三十人团和逐影庭了！"
+    """拒绝加入群聊"""
+    quit_status: str = f"{bot_name}不想进去！不是旅行者的邀请！"
 
     class Config(Settings.Config):
         env_prefix = "notice_"
