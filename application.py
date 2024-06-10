@@ -18,13 +18,13 @@ from telegram.ext import (
     Defaults,
     JobQueue,
 )
+from telegram.request import HTTPXRequest
 from typing_extensions import ParamSpec
 from uvicorn import Server
 
 from gram_core.config import config as application_config
 from gram_core.handler.limiterhandler import LimiterHandler
 from gram_core.manager import Managers
-from gram_core.override.telegram import HTTPXRequest
 from gram_core.ratelimiter import RateLimiter
 from utils.const import WRAPPER_ASSIGNMENTS
 from utils.log import logger
@@ -72,7 +72,7 @@ class Application(Singleton):
             .get_updates_write_timeout(application_config.update_write_timeout)
             .get_updates_connect_timeout(application_config.update_connect_timeout)
             .get_updates_pool_timeout(application_config.update_pool_timeout)
-            .defaults(Defaults(tzinfo=pytz.timezone("Asia/Shanghai")))
+            .defaults(Defaults(tzinfo=pytz.timezone("Asia/Shanghai"), allow_sending_without_reply=True))
             .token(application_config.bot_token)
             .base_url(application_config.bot_base_url)
             .base_file_url(application_config.bot_base_file_url)
@@ -84,6 +84,7 @@ class Application(Singleton):
                     write_timeout=application_config.write_timeout,
                     connect_timeout=application_config.connect_timeout,
                     pool_timeout=application_config.pool_timeout,
+                    media_write_timeout=application_config.write_timeout,
                 )
             )
             .rate_limiter(rate_limiter)

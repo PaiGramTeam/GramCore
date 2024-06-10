@@ -99,6 +99,7 @@ class ReloadConfig(Settings):
 
 class NoticeConfig(Settings):
     """bot自称"""
+
     bot_name: str = "派蒙"
     user_not_found: str = f"{bot_name}没有找到您所绑定的账号信息，请先私聊{bot_name}绑定账号"
     """权限不匹配"""
