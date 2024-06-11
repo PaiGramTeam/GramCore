@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlmodel import select, delete
+from sqlmodel import select, delete, col
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from gram_core.base_service import BaseService
@@ -23,6 +23,7 @@ class PlayersRepository(BaseService.Component):
         account_id: Optional[int] = None,
         region: Optional[RegionEnum] = None,
         is_chosen: Optional[bool] = None,
+        offset: int = 0,
     ) -> Optional[Player]:
         async with AsyncSession(self.engine) as session:
             statement = select(Player).where(Player.user_id == user_id)
@@ -34,6 +35,7 @@ class PlayersRepository(BaseService.Component):
                 statement = statement.where(Player.region == region)
             if is_chosen is not None:
                 statement = statement.where(Player.is_chosen == is_chosen)
+            statement = statement.order_by(col(Player.id).asc()).limit(1).offset(offset)
             results = await session.exec(statement)
             return results.first()
 
