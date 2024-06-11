@@ -1,3 +1,4 @@
+import contextlib
 from typing import Optional, TYPE_CHECKING
 
 from playwright.async_api import Error, async_playwright
@@ -53,6 +54,8 @@ class AioBrowser(BaseService.Dependence):
 
     async def shutdown(self):
         if self._browser is not None:
-            await self._browser.close()
+            with contextlib.suppress(Exception):
+                await self._browser.close()
         if self._playwright is not None:
-            self._playwright.stop()
+            with contextlib.suppress(Exception):
+                await self._playwright.stop()
