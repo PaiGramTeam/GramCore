@@ -33,6 +33,16 @@ class DatabaseConfig(Settings):
         env_prefix = "db_"
 
 
+class InfluxDBConfig(Settings):
+    host: Optional[str] = None
+    port: Optional[int] = None
+    token: Optional[str] = None
+    org: Optional[str] = None
+
+    class Config(Settings.Config):
+        env_prefix = "influxdb_"
+
+
 class RedisConfig(Settings):
     host: str = "127.0.0.1"
     port: int = 6379
@@ -161,6 +171,7 @@ class ApplicationConfig(Settings):
 
     reload: ReloadConfig = ReloadConfig()
     database: DatabaseConfig = DatabaseConfig()
+    influxdb: InfluxDBConfig = InfluxDBConfig()
     logger: LoggerConfig = LoggerConfig()
     webserver: WebServerConfig = WebServerConfig()
     redis: RedisConfig = RedisConfig()
