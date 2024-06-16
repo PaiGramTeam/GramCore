@@ -41,7 +41,7 @@ class HistoryDataBaseServices:
         return await self._repository.get_all(self.DATA_TYPE)
 
     async def get_all_by_user_id(self, user_id: int):
-        return await self._repository.get_all_by_user_id(user_id)
+        return await self._repository.get_all_by_user_id(self.DATA_TYPE, user_id)
 
     @staticmethod
     def exists_data(data: HistoryData, old_data: List[HistoryData]) -> bool:
@@ -54,7 +54,7 @@ class HistoryDataBaseServices:
             new_data = data_list[i]
             for j in range(i + 1, data_list_len):
                 old_data = data_list[j]
-                if self.exists_data(new_data, [old_data]):
+                if self.exists_data(new_data, [old_data]) and old_data not in need_delete:
                     need_delete.append(old_data)
         if need_delete:
             await self.try_delete(need_delete)

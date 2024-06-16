@@ -60,8 +60,8 @@ class HistoryDataRepository(BaseService.Component):
             results = await session.exec(query)
             return results.all()
 
-    async def get_all_by_user_id(self, user_id: int) -> List[HistoryData]:
+    async def get_all_by_user_id(self, data_type: int, user_id: int) -> List[HistoryData]:
         async with AsyncSession(self.engine) as session:
-            query = select(HistoryData).where(HistoryData.user_id == user_id)
+            query = select(HistoryData).where(HistoryData.type == data_type).where(HistoryData.user_id == user_id)
             results = await session.exec(query)
             return results.all()
