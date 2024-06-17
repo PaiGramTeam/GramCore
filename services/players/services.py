@@ -27,7 +27,7 @@ class PlayersService(BaseService):
         self, user_id: int, region: Optional[RegionEnum] = None, player_id: int = None, offset: int = 0
     ) -> Optional[Player]:
         is_chosen = True
-        if player_id is not None or offset != 0:
+        if player_id is not None or (offset is not None and offset != 0):
             is_chosen = None
         return await self._repository.get(user_id, player_id, region=region, is_chosen=is_chosen, offset=offset)
 
