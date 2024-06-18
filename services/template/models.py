@@ -107,9 +107,14 @@ class RenderResult:
 
         return edit_media
 
-    async def send_photo_to_helper_channel(self, bot: "Bot"):
+    async def send_photo_to_helper_channel(self, bot: "Bot", filename: Optional[str] = None):
         try:
-            reply = await bot.send_photo(config.channels_helper, photo=self.photo)
+            if self.file_type == FileType.PHOTO:
+                reply = await bot.send_photo(config.channels_helper, photo=self.photo)
+            elif self.file_type == FileType.DOCUMENT:
+                reply = await bot.send_document(config.channels_helper, document=self.photo, filename=filename)
+            else:
+                return
         except BadRequest as exc:
             if "Wrong file identifier" in exc.message and isinstance(self.photo, str):
                 await self._cache.delete_data(self.html, self.file_type.name)
@@ -120,15 +125,21 @@ class RenderResult:
 
         return reply
 
-    async def edit_inline_media(self, callback_query: CallbackQuery, *args, **kwargs) -> bool:
+    async def edit_inline_media(self, callback_query: CallbackQuery, filename: str = None, *args, **kwargs) -> bool:
         """是 `message.edit_media` 的封装，上传成功后，缓存 telegram 返回的 file_id，方便重复使用"""
-        if self.file_type != FileType.PHOTO:
-            raise ErrorFileType
         bot = callback_query.get_bot()
 
-        reply = await self.send_photo_to_helper_channel(bot)
+        reply = await self.send_photo_to_helper_channel(bot, filename)
         file_id = self.get_file_id(reply)
-        media = InputMediaPhoto(media=file_id, caption=self.caption, parse_mode=self.parse_mode, filename=self.filename)
+
+        if self.file_type == FileType.DOCUMENT:
+            media = InputMediaDocument(
+                media=file_id, caption=self.caption, parse_mode=self.parse_mode, filename=self.filename
+            )
+        else:
+            media = InputMediaPhoto(
+                media=file_id, caption=self.caption, parse_mode=self.parse_mode, filename=self.filename
+            )
 
         try:
             return await callback_query.edit_message_media(media, *args, **kwargs)
