@@ -6,6 +6,7 @@ from .get_chat import GetChat
 from .get_real_uid_or_offset import GetRealUidOrOffset
 from .get_real_user_id import GetRealUserId
 from .get_real_user_name import GetRealUserName
+from .inline_use_data import InlineUseData
 from .log_user import LogUser
 from .migrate_data import MigrateData
 
@@ -19,6 +20,7 @@ class PluginFuncMethods(
     GetRealUidOrOffset,
     GetRealUserId,
     GetRealUserName,
+    InlineUseData,
     LogUser,
     MigrateData,
 ):
