@@ -1,9 +1,10 @@
 from enum import Enum
 from typing import List, Optional, Union
 
-from telegram import InputMediaDocument, InputMediaPhoto, Message
+from telegram import InputMediaDocument, InputMediaPhoto, Message, CallbackQuery, Bot
 from telegram.error import BadRequest
 
+from gram_core.config import config
 from gram_core.services.template.cache import HtmlToFileIdCache
 from gram_core.services.template.error import ErrorFileType, FileIdNotFound
 
@@ -106,10 +107,40 @@ class RenderResult:
 
         return edit_media
 
-    async def cache_file_id(self, reply: Message):
-        """缓存 telegram 返回的 file_id"""
+    async def send_photo_to_helper_channel(self, bot: "Bot"):
+        try:
+            reply = await bot.send_photo(config.channels_helper, photo=self.photo)
+        except BadRequest as exc:
+            if "Wrong file identifier" in exc.message and isinstance(self.photo, str):
+                await self._cache.delete_data(self.html, self.file_type.name)
+                raise BadRequest(message="Wrong file identifier specified")
+            raise exc
+
+        await self.cache_file_id(reply)
+
+        return reply
+
+    async def edit_inline_media(self, callback_query: CallbackQuery, *args, **kwargs) -> bool:
+        """是 `message.edit_media` 的封装，上传成功后，缓存 telegram 返回的 file_id，方便重复使用"""
+        if self.file_type != FileType.PHOTO:
+            raise ErrorFileType
+        bot = callback_query.get_bot()
+
+        reply = await self.send_photo_to_helper_channel(bot)
+        file_id = self.get_file_id(reply)
+        media = InputMediaPhoto(media=file_id, caption=self.caption, parse_mode=self.parse_mode, filename=self.filename)
+
+        try:
+            return await callback_query.edit_message_media(media, *args, **kwargs)
+        except BadRequest as exc:
+            if "Wrong file identifier" in exc.message and isinstance(self.photo, str):
+                await self._cache.delete_data(self.html, self.file_type.name)
+                raise BadRequest(message="Wrong file identifier specified")
+            raise exc
+
+    def get_file_id(self, reply: Message) -> str:
         if self.is_file_id():
-            return
+            return self.photo
 
         if self.file_type == FileType.PHOTO and reply.photo:
             file_id = reply.photo[0].file_id
@@ -117,6 +148,13 @@ class RenderResult:
             file_id = reply.document.file_id
         else:
             raise FileIdNotFound
+        return file_id
+
+    async def cache_file_id(self, reply: Message):
+        """缓存 telegram 返回的 file_id"""
+        if self.is_file_id():
+            return
+        file_id = self.get_file_id(reply)
         await self._cache.set_data(self.html, self.file_type.name, file_id, self.ttl)
 
     def is_file_id(self) -> bool:

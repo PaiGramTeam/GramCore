@@ -145,6 +145,8 @@ class ApplicationConfig(Settings):
 
     channels: List[int] = []
     """文章推送群组"""
+    channels_helper: Optional[int] = None
+    """消息帮助频道"""
 
     verify_groups: Set[int] = set()
     """启用群验证功能的群组"""
