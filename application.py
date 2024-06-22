@@ -10,6 +10,8 @@ from typing import Callable, List, Optional, TYPE_CHECKING, TypeVar, Union
 import pytz
 import uvicorn
 from fastapi import FastAPI
+from starlette.requests import Request
+from starlette.responses import Response
 from telegram import Bot, Update
 from telegram.error import NetworkError, TelegramError, TimedOut
 from telegram.ext import (
@@ -32,8 +34,8 @@ from utils.models.signal import Singleton
 
 if TYPE_CHECKING:
     from asyncio import Task
+    from telegram import Bot
     from types import FrameType
-    from uvicorn._types import ASGIApplication
     from gram_core.ratelimiter import T_CalledAPIFunc
     from gram_core.handler.hookhandler import T_PreprocessorsFunc
 
@@ -73,9 +75,9 @@ class Application(Singleton):
             .get_updates_connect_timeout(application_config.update_connect_timeout)
             .get_updates_pool_timeout(application_config.update_pool_timeout)
             .defaults(Defaults(tzinfo=pytz.timezone("Asia/Shanghai"), allow_sending_without_reply=True))
-            .token(application_config.bot_token)
-            .base_url(application_config.bot_base_url)
-            .base_file_url(application_config.bot_base_file_url)
+            .token(application_config.bot.token)
+            .base_url(application_config.bot.base_url)
+            .base_file_url(application_config.bot.base_file_url)
             .request(
                 HTTPXRequest(
                     connection_pool_size=application_config.connection_pool_size,
@@ -109,7 +111,7 @@ class Application(Singleton):
             return self._running
 
     @property
-    def web_app(self) -> Union["ASGIApplication", Callable, str]:
+    def web_app(self) -> Union["FastAPI", Callable, str]:
         """fastapi app"""
         return self.web_server.config.app
 
@@ -147,10 +149,6 @@ class Application(Singleton):
         """启动 BOT"""
         logger.info("正在启动 BOT 中...")
 
-        def error_callback(exc: TelegramError) -> None:
-            """错误信息回调"""
-            self.telegram.create_task(self.telegram.process_error(error=exc, update=None))
-
         await self.telegram.initialize()
         logger.info("[blue]Telegram[/] 初始化成功", extra={"markup": True})
 
@@ -175,11 +173,35 @@ class Application(Singleton):
 
             self._web_server_task = asyncio.create_task(self.web_server.main_loop())
 
+        await self.start_bot()
+
+        await self.initialize()
+        logger.success("BOT 初始化成功")
+        logger.debug("BOT 开始启动")
+
+        await self._on_startup()
+        await self.telegram.start()
+        self._running = True
+        logger.success("BOT 启动成功")
+
+    async def start_bot(self):
+        """启动 BOT"""
+
+        def error_callback(exc: TelegramError) -> None:
+            """错误信息回调"""
+            self.telegram.create_task(self.telegram.process_error(error=exc, update=None))
+
+        if application_config.bot.is_webhook and application_config.webserver.enable:
+            self.register_bot_route()
+            await self.bot.set_webhook(application_config.bot.webhook_url)
         for _ in range(5):  # 连接至 telegram 服务器
             try:
-                await self.telegram.updater.start_polling(
-                    error_callback=error_callback, allowed_updates=Update.ALL_TYPES
-                )
+                if application_config.bot.is_webhook and application_config.webserver.enable:
+                    await self.bot.set_webhook(application_config.bot.webhook_url)
+                else:
+                    await self.telegram.updater.start_polling(
+                        error_callback=error_callback, allowed_updates=Update.ALL_TYPES
+                    )
                 break
             except TimedOut:
                 logger.warning("连接至 [blue]telegram[/] 服务器失败，正在重试", extra={"markup": True})
@@ -192,14 +214,14 @@ class Application(Singleton):
                     logger.error("网络连接出现问题, 请检查您的网络状况.")
                 raise SystemExit from e
 
-        await self.initialize()
-        logger.success("BOT 初始化成功")
-        logger.debug("BOT 开始启动")
+    def register_bot_route(self):
+        """注册 webhook 路由"""
 
-        await self._on_startup()
-        await self.telegram.start()
-        self._running = True
-        logger.success("BOT 启动成功")
+        @self.web_app.post("/telegram")
+        async def telegram(request: Request) -> Response:
+            """Handle incoming Telegram updates by putting them into the `update_queue`"""
+            await self.telegram.updater.update_queue.put(Update.de_json(data=await request.json(), bot=self.bot))
+            return Response()
 
     def stop_signal_handler(self, signum: int):
         """终止信号处理"""
