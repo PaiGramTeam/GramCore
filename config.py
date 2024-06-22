@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union, Set
+from typing import List, Optional, Set
 
 import dotenv
 from pydantic import AnyUrl, Field
@@ -121,6 +121,26 @@ class NoticeConfig(Settings):
         env_prefix = "notice_"
 
 
+class BotConfig(Settings):
+    """Bot 基础设置"""
+
+    token: str = ""
+    """BOT的token"""
+    base_url: str = "https://api.telegram.org/bot"
+    """Telegram API URL"""
+    base_file_url: str = "https://api.telegram.org/file/bot"
+    """Telegram API File URL"""
+    official: List[str] = ["PaimonMasterBot", "HonkaiStarRail_ZH_Bot"]
+    """PaiGramTeam Bot"""
+    is_webhook: bool = False
+    """接收更新类型 1 为 webhook 0 为 轮询 pull"""
+    webhook_url: str = "http://127.0.0.1:8080/telegram"
+    """webhook url"""
+
+    class Config(Settings.Config):
+        env_prefix = "bot_"
+
+
 class ApplicationConfig(Settings):
     debug: bool = False
     """debug 开关"""
@@ -131,15 +151,6 @@ class ApplicationConfig(Settings):
 
     proxy_url: Optional[AnyUrl] = None
     """代理链接"""
-
-    bot_token: str = ""
-    """BOT的token"""
-    bot_base_url: str = "https://api.telegram.org/bot"
-    """Telegram API URL"""
-    bot_base_file_url: str = "https://api.telegram.org/file/bot"
-    """Telegram API File URL"""
-    bot_official: List[str] = ["PaimonMasterBot", "HonkaiStarRail_ZH_Bot"]
-    """PaiGramTeam Bot"""
 
     owner: Optional[int] = None
 
@@ -180,6 +191,7 @@ class ApplicationConfig(Settings):
     mtproto: MTProtoConfig = MTProtoConfig()
     error: ErrorConfig = ErrorConfig()
     notice: NoticeConfig = NoticeConfig()
+    bot: BotConfig = BotConfig()
 
 
 ApplicationConfig.update_forward_refs()

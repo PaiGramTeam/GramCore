@@ -57,7 +57,7 @@ class MTProto(BaseService.Dependence):
             api_id=bot_config.mtproto.api_id,
             api_hash=bot_config.mtproto.api_hash,
             name=self.name,
-            bot_token=bot_config.bot_token,
+            bot_token=bot_config.bot.token,
             proxy=self.proxy,
         )
         await self.client.start()
