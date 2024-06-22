@@ -199,6 +199,7 @@ class Application(Singleton):
                 if application_config.bot.is_webhook and application_config.webserver.enable:
                     await self.bot.set_webhook(application_config.bot.webhook_url)
                 else:
+                    await self.bot.delete_webhook()
                     await self.telegram.updater.start_polling(
                         error_callback=error_callback, allowed_updates=Update.ALL_TYPES
                     )

@@ -60,6 +60,9 @@ class RateLimiter(BaseRateLimiter[int]):
             await self._on_called_api(endpoint, data, result)
             return result
         except RetryAfter as exc:
+            if endpoint == "setWebhook" and exc.retry_after == 1:
+                # webhook 已被正确设置
+                return True
             logger.warning("chat_id[%s] 触发洪水限制 当前被服务器限制 retry_after[%s]秒", chat_id, exc.retry_after)
             self._limiter_info[chat_id] = time + (exc.retry_after * 2)
             sleep = exc.retry_after + 0.1
