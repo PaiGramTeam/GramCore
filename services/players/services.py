@@ -14,7 +14,7 @@ class PlayersService(BaseService):
 
     async def get(
         self,
-        user_id: int,
+        user_id: Optional[int] = None,
         player_id: Optional[int] = None,
         account_id: Optional[int] = None,
         region: Optional[RegionEnum] = None,

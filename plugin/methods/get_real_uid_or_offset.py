@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Tuple
 if TYPE_CHECKING:
     from telegram import Update
 
-REGEX = r"@(\d{10})|@(\d{9})|@(\d)"
+REGEX = r"@(\d{10})|@(\d{9})|@(\d{8})|@(\d)"
 
 
 def get_real_uid_or_offset_by_text(text: str) -> Tuple[Optional[int], Optional[int]]:

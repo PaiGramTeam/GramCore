@@ -12,7 +12,7 @@ try:
 except ImportError:
     import json as jsonlib
 
-__all__ = ("Player", "PlayersDataBase", "PlayerInfo", "PlayerInfoSQLModel")
+__all__ = ("Player", "PlayersDataBase", "PlayerInfo", "PlayerInfoSQLModel", "ExtraPlayerInfo")
 
 
 class Player(SQLModel):
@@ -34,10 +34,12 @@ class PlayersDataBase(Player, table=True):
 
 class ExtraPlayerInfo(BaseModel):
     class Config(BaseSettings.Config):
+        frozen = False
         json_loads = jsonlib.loads
         json_dumps = jsonlib.dumps
 
     waifu_id: Optional[int] = None
+    level: Optional[int] = None
 
 
 class ExtraPlayerType(TypeDecorator):  # pylint: disable=W0223

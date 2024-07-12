@@ -18,7 +18,7 @@ class PlayersRepository(BaseService.Component):
 
     async def get(
         self,
-        user_id: int,
+        user_id: Optional[int] = None,
         player_id: Optional[int] = None,
         account_id: Optional[int] = None,
         region: Optional[RegionEnum] = None,
@@ -26,7 +26,9 @@ class PlayersRepository(BaseService.Component):
         offset: int = 0,
     ) -> Optional[Player]:
         async with AsyncSession(self.engine) as session:
-            statement = select(Player).where(Player.user_id == user_id)
+            statement = select(Player)
+            if user_id is not None:
+                statement = statement.where(Player.user_id == user_id)
             if player_id is not None:
                 statement = statement.where(Player.player_id == player_id)
             if account_id is not None:
