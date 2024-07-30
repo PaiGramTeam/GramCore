@@ -62,8 +62,15 @@ class PlayersRepository(BaseService.Component):
         async with AsyncSession(self.engine) as session:
             statement = select(Player).where(Player.user_id == user_id)
             results = await session.exec(statement)
-            players = results.all()
-            return players
+            return results.all()
+
+    async def get_all_by_account_id(self, account_id: int, region: Optional[RegionEnum] = None) -> List[Player]:
+        async with AsyncSession(self.engine) as session:
+            statement = select(Player).where(Player.account_id == account_id)
+            if region is not None:
+                statement = statement.where(Player.region == region)
+            results = await session.exec(statement)
+            return results.all()
 
 
 class PlayerInfoRepository(BaseService.Component):

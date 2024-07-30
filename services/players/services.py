@@ -45,5 +45,14 @@ class PlayersService(BaseService):
         for player in players:
             await self._repository.delete(player)
 
+    async def get_all_by_account_id(self, account_id: int, region: Optional[RegionEnum] = None) -> List[Player]:
+        return await self._repository.get_all_by_account_id(account_id, region)
+
+    async def set_player_to_main(self, user_id: int, player_id: int) -> bool:
+        players = await self._repository.get_all_by_user_id(user_id)
+        for player in players:
+            player.is_chosen = player.player_id == player_id
+            await self._repository.update(player)
+
     async def delete(self, player: Player):
         await self._repository.delete(player)
