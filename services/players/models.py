@@ -40,6 +40,12 @@ class ExtraPlayerInfo(BaseModel):
 
     waifu_id: Optional[int] = None
     level: Optional[int] = None
+    avatar: Optional[str] = None
+
+    def copy_to(self, to: "ExtraPlayerInfo"):
+        to.waifu_id = self.waifu_id
+        to.level = self.level
+        to.avatar = self.avatar
 
 
 class ExtraPlayerType(TypeDecorator):  # pylint: disable=W0223
