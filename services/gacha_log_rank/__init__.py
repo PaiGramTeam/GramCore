@@ -1,0 +1,1 @@
+"""Gacha Log Rank Service"""
