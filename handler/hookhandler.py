@@ -21,11 +21,11 @@ T_PreprocessorsFunc = Callable[
 ]
 
 
-class HookHandler(BaseHandler[Update, CCT]):
+class HookHandler(BaseHandler[Update, CCT, RT]):
 
     def __init__(
         self,
-        handler: BaseHandler[Update, CCT],
+        handler: BaseHandler[Update, CCT, RT],
         handler_data: Union["HandlerData", "ConversationData"],
         application: "Application",
     ) -> None:

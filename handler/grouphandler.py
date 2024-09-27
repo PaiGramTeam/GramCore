@@ -17,11 +17,12 @@ if TYPE_CHECKING:
     from telegram import Bot
     from gram_core.application import Application
 
+RT = TypeVar("RT")
 UT = TypeVar("UT")
 CCT = TypeVar("CCT", bound="CallbackContext[Any, Any, Any, Any]")
 
 
-class GroupHandler(BaseHandler[UT, CCT]):
+class GroupHandler(BaseHandler[UT, CCT, RT]):
     _lock = asyncio.Lock()
     __lock = asyncio.Lock()
 
@@ -101,7 +102,7 @@ class GroupHandler(BaseHandler[UT, CCT]):
             await group_service.remove_update(chat.id)
             raise e
 
-    async def message_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE):
+    async def message_check_callback(self, update: Update, _: ContextTypes.DEFAULT_TYPE) -> RT:
         if update.inline_query is not None:
             return
         if update.effective_chat:

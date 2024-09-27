@@ -18,10 +18,10 @@ UT = TypeVar("UT")
 CCT = TypeVar("CCT", bound="CallbackContext[Any, Any, Any, Any]")
 
 
-class AdminHandler(BaseHandler[Update, CCT]):
+class AdminHandler(BaseHandler[Update, CCT, RT]):
     _lock = asyncio.Lock()
 
-    def __init__(self, handler: BaseHandler[Update, CCT], application: "Application") -> None:
+    def __init__(self, handler: BaseHandler[Update, CCT, RT], application: "Application") -> None:
         self.handler = handler
         self.application = application
         self.user_service: Optional["UserAdminService"] = None
