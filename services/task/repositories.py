@@ -31,9 +31,14 @@ class TaskRepository(BaseService.Component):
             await session.refresh(task)
             return task
 
-    async def get_by_user_id(self, user_id: int, task_type: TaskTypeEnum) -> Optional[Task]:
+    async def get_by_user_id(self, user_id: int, player_id: int, task_type: TaskTypeEnum) -> Optional[Task]:
         async with AsyncSession(self.engine) as session:
-            statement = select(Task).where(Task.user_id == user_id).where(Task.type == task_type)
+            statement = (
+                select(Task)
+                .where(Task.user_id == user_id)
+                .where(Task.player_id == player_id)
+                .where(Task.type == task_type)
+            )
             results = await session.exec(statement)
             return results.first()
 

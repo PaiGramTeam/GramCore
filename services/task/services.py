@@ -32,8 +32,8 @@ class TaskServices:
         task.time_updated = datetime.datetime.now()
         return await self._repository.update(task)
 
-    async def get_by_user_id(self, user_id: int):
-        return await self._repository.get_by_user_id(user_id, self.TASK_TYPE)
+    async def get_by_user_id(self, user_id: int, player_id: int):
+        return await self._repository.get_by_user_id(user_id, player_id, self.TASK_TYPE)
 
     async def get_all(self):
         return await self._repository.get_all(self.TASK_TYPE)
@@ -41,9 +41,10 @@ class TaskServices:
     async def get_all_by_user_id(self, user_id: int):
         return await self._repository.get_all_by_user_id(user_id)
 
-    def create(self, user_id: int, chat_id: int, status: int, data: Optional[Dict[str, Any]] = None):
+    def create(self, user_id: int, player_id: int, chat_id: int, status: int, data: Optional[Dict[str, Any]] = None):
         return Task(
             user_id=user_id,
+            player_id=player_id,
             chat_id=chat_id,
             time_created=datetime.datetime.now(),
             status=status,
