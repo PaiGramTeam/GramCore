@@ -4,6 +4,7 @@ from typing import List, Optional, Set
 
 import dotenv
 from pydantic import AnyUrl, Field
+from pydantic_settings import SettingsConfigDict
 
 from gram_core.basemodel import Settings
 from utils.const import PROJECT_ROOT
@@ -29,8 +30,7 @@ class DatabaseConfig(Settings):
     password: Optional[str] = None
     database: Optional[str] = None
 
-    class Config(Settings.Config):
-        env_prefix = "db_"
+    model_config = SettingsConfigDict(env_prefix="db_")
 
 
 class InfluxDBConfig(Settings):
@@ -39,18 +39,16 @@ class InfluxDBConfig(Settings):
     token: Optional[str] = None
     org: Optional[str] = None
 
-    class Config(Settings.Config):
-        env_prefix = "influxdb_"
+    model_config = SettingsConfigDict(env_prefix="influxdb_")
 
 
 class RedisConfig(Settings):
     host: str = "127.0.0.1"
     port: int = 6379
-    database: int = Field(default=0, env="redis_db")
+    database: int = Field(default=0, validation_alias="redis_db")
     password: Optional[str] = None
 
-    class Config(Settings.Config):
-        env_prefix = "redis_"
+    model_config = SettingsConfigDict(env_prefix="redis_")
 
 
 class LoggerConfig(Settings):
@@ -65,8 +63,7 @@ class LoggerConfig(Settings):
     locals_max_depth: Optional[NaturalNumber] = None
     filtered_names: List[str] = ["uvicorn"]
 
-    class Config(Settings.Config):
-        env_prefix = "logger_"
+    model_config = SettingsConfigDict(env_prefix="logger_")
 
 
 class MTProtoConfig(Settings):
@@ -82,8 +79,7 @@ class WebServerConfig(Settings):
     host: str = "localhost"
     port: int = 8080
 
-    class Config(Settings.Config):
-        env_prefix = "web_"
+    model_config = SettingsConfigDict(env_prefix="web_")
 
 
 class ErrorConfig(Settings):
@@ -93,8 +89,7 @@ class ErrorConfig(Settings):
     sentry_dsn: str = ""
     notification_chat_id: Optional[str] = None
 
-    class Config(Settings.Config):
-        env_prefix = "error_"
+    model_config = SettingsConfigDict(env_prefix="error_")
 
 
 class ReloadConfig(Settings):
@@ -103,8 +98,7 @@ class ReloadConfig(Settings):
     include: List[str] = []
     exclude: List[str] = []
 
-    class Config(Settings.Config):
-        env_prefix = "reload_"
+    model_config = SettingsConfigDict(env_prefix="reload_")
 
 
 class NoticeConfig(Settings):
@@ -117,8 +111,7 @@ class NoticeConfig(Settings):
     """拒绝加入群聊"""
     quit_status: str = f"{bot_name}不想进去！不是旅行者的邀请！"
 
-    class Config(Settings.Config):
-        env_prefix = "notice_"
+    model_config = SettingsConfigDict(env_prefix="notice_")
 
 
 class BotConfig(Settings):
@@ -137,8 +130,7 @@ class BotConfig(Settings):
     webhook_url: str = "http://127.0.0.1:8080/telegram"
     """webhook url"""
 
-    class Config(Settings.Config):
-        env_prefix = "bot_"
+    model_config = SettingsConfigDict(env_prefix="bot_")
 
 
 class ApplicationConfig(Settings):

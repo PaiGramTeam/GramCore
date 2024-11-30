@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, BaseSettings
+from pydantic import BaseModel
 from sqlalchemy import TypeDecorator
 from sqlmodel import Boolean, Column, Enum, Field, SQLModel, Integer, Index, BigInteger, VARCHAR, func, DateTime
 
@@ -33,10 +33,6 @@ class PlayersDataBase(Player, table=True):
 
 
 class ExtraPlayerInfo(BaseModel):
-    class Config(BaseSettings.Config):
-        frozen = False
-        json_loads = jsonlib.loads
-        json_dumps = jsonlib.dumps
 
     waifu_id: Optional[int] = None
     level: Optional[int] = None

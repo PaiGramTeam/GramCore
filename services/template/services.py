@@ -163,7 +163,7 @@ class TemplatePreviewer(BaseService, load=application_config.webserver.enable an
 
     async def get_preview_url(self, template: str, data: dict):
         """获取预览 URL"""
-        components = urlsplit(application_config.webserver.url)
+        components = urlsplit(str(application_config.webserver.url))
         path = urljoin("/preview/", template)
         query = {}
 

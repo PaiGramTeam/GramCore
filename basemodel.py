@@ -1,13 +1,12 @@
 import enum
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 try:
     import ujson as jsonlib
 except ImportError:
     import json as jsonlib
 
-from pydantic import BaseSettings
-
-__all__ = ("RegionEnum", "Settings")
+__all__ = ("RegionEnum", "Settings", "SettingsConfigDict")
 
 
 class RegionEnum(int, enum.Enum):
@@ -20,10 +19,5 @@ class RegionEnum(int, enum.Enum):
 
 class Settings(BaseSettings):
     def __new__(cls, *args, **kwargs):
-        cls.update_forward_refs()
+        cls.model_rebuild()
         return super(Settings, cls).__new__(cls)  # pylint: disable=E1120
-
-    class Config(BaseSettings.Config):
-        case_sensitive = False
-        json_loads = jsonlib.loads
-        json_dumps = jsonlib.dumps
