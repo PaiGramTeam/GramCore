@@ -14,8 +14,10 @@ class HistoryData(SQLModel, table=True):
     user_id: int = Field(sa_column=Column(BigInteger(), primary_key=True, index=True))
     data_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger()))
     time_created: Optional[datetime] = Field(
-        sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
+        default=None, sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
     )
-    time_updated: Optional[datetime] = Field(sa_column=Column(DateTime, onupdate=func.now()))  # pylint: disable=E1102
+    time_updated: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime, onupdate=func.now())
+    )  # pylint: disable=E1102
     type: int = Field(sa_column=Column(Integer(), primary_key=True))
-    data: Optional[Dict[str, Any]] = Field(sa_column=Column(JSON))
+    data: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))

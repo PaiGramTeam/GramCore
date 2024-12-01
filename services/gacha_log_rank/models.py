@@ -40,11 +40,13 @@ class GachaLogRank(SQLModel, table=True):
     """小保底不歪概率"""
     score_5: int = Field(sa_column=Column(BigInteger(), default=0))
     """保留字段"""
-    data: Optional[Dict[str, Any]] = Field(sa_column=Column(JSON))
+    data: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
     time_created: Optional[datetime] = Field(
-        sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
+        default=None, sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
     )
-    time_updated: Optional[datetime] = Field(sa_column=Column(DateTime, onupdate=func.now()))  # pylint: disable=E1102
+    time_updated: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime, onupdate=func.now())
+    )  # pylint: disable=E1102
 
     def update_by_new(self, new_ins: "GachaLogRank"):
         self.score_1 = new_ins.score_1

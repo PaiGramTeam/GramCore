@@ -80,16 +80,18 @@ class PlayerInfo(SQLModel):
     id: Optional[int] = Field(default=None, sa_column=Column(Integer(), primary_key=True, autoincrement=True))
     user_id: int = Field(sa_column=Column(BigInteger(), primary_key=True))
     player_id: int = Field(sa_column=Column(BigInteger(), primary_key=True))
-    nickname: Optional[str] = Field()
-    signature: Optional[str] = Field()
-    hand_image: Optional[int] = Field()
-    name_card: Optional[int] = Field()
-    extra_data: Optional[ExtraPlayerInfo] = Field(sa_column=Column(ExtraPlayerType))
+    nickname: Optional[str] = Field(default=None)
+    signature: Optional[str] = Field(default=None)
+    hand_image: Optional[int] = Field(default=None)
+    name_card: Optional[int] = Field(default=None)
+    extra_data: Optional[ExtraPlayerInfo] = Field(default=None, sa_column=Column(ExtraPlayerType))
     create_time: Optional[datetime] = Field(
-        sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
+        default=None, sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
     )
-    last_save_time: Optional[datetime] = Field(sa_column=Column(DateTime, onupdate=func.now()))  # pylint: disable=E1102
-    is_update: Optional[bool] = Field(sa_column=Column(Boolean))
+    last_save_time: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime, onupdate=func.now())
+    )  # pylint: disable=E1102
+    is_update: Optional[bool] = Field(default=None, sa_column=Column(Boolean))
 
 
 class PlayerInfoSQLModel(PlayerInfo, table=True):

@@ -29,10 +29,10 @@ class Cookies(SQLModel):
             BigInteger(),
         ),
     )
-    data: Optional[Dict[str, str]] = Field(sa_column=Column(JSON))
-    status: Optional[CookiesStatusEnum] = Field(sa_column=Column(Enum(CookiesStatusEnum)))
+    data: Optional[Dict[str, str]] = Field(default=None, sa_column=Column(JSON))
+    status: Optional[CookiesStatusEnum] = Field(default=None, sa_column=Column(Enum(CookiesStatusEnum)))
     region: RegionEnum = Field(sa_column=Column(Enum(RegionEnum)))
-    is_share: Optional[bool] = Field(sa_column=Column(Boolean))
+    is_share: Optional[bool] = Field(default=True, sa_column=Column(Boolean))
 
 
 class CookiesDataBase(Cookies, table=True):

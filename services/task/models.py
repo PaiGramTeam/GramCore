@@ -36,9 +36,11 @@ class Task(SQLModel, table=True):
     player_id: int = Field(sa_column=Column(BigInteger(), primary_key=True, index=True))
     chat_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger()))
     time_created: Optional[datetime] = Field(
-        sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
+        default=None, sa_column=Column(DateTime, server_default=func.now())  # pylint: disable=E1102
     )
-    time_updated: Optional[datetime] = Field(sa_column=Column(DateTime, onupdate=func.now()))  # pylint: disable=E1102
+    time_updated: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime, onupdate=func.now())
+    )  # pylint: disable=E1102
     type: TaskTypeEnum = Field(sa_column=Column(Enum(TaskTypeEnum), primary_key=True))
-    status: Optional[TaskStatusEnum] = Field(sa_column=Column(Enum(TaskStatusEnum)))
-    data: Optional[Dict[str, Any]] = Field(sa_column=Column(JSON))
+    status: Optional[TaskStatusEnum] = Field(default=None, sa_column=Column(Enum(TaskStatusEnum)))
+    data: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
