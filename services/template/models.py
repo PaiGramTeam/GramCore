@@ -129,8 +129,11 @@ class RenderResult:
         """是 `message.edit_media` 的封装，上传成功后，缓存 telegram 返回的 file_id，方便重复使用"""
         bot = callback_query.get_bot()
 
-        reply = await self.send_photo_to_helper_channel(bot, filename)
-        file_id = self.get_file_id(reply)
+        if self.is_file_id():
+            file_id = self.photo
+        else:
+            reply = await self.send_photo_to_helper_channel(bot, filename)
+            file_id = self.get_file_id(reply)
 
         if self.file_type == FileType.DOCUMENT:
             media = InputMediaDocument(
