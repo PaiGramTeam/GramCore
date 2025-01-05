@@ -7,7 +7,7 @@ from signal import SIGABRT, SIGINT, SIGTERM, signal as signal_func
 from ssl import SSLZeroReturnError
 from typing import Callable, List, Optional, TYPE_CHECKING, TypeVar, Union
 
-import pytz
+import zoneinfo
 import uvicorn
 from fastapi import FastAPI
 from starlette.requests import Request
@@ -74,7 +74,7 @@ class Application(Singleton):
             .get_updates_write_timeout(application_config.update_write_timeout)
             .get_updates_connect_timeout(application_config.update_connect_timeout)
             .get_updates_pool_timeout(application_config.update_pool_timeout)
-            .defaults(Defaults(tzinfo=pytz.timezone("Asia/Shanghai"), allow_sending_without_reply=True))
+            .defaults(Defaults(tzinfo=zoneinfo.ZoneInfo("Asia/Shanghai"), allow_sending_without_reply=True))
             .token(application_config.bot.token)
             .base_url(application_config.bot.base_url)
             .base_file_url(application_config.bot.base_file_url)
