@@ -81,7 +81,7 @@ class Application(Singleton):
             .request(
                 HTTPXRequest(
                     connection_pool_size=application_config.connection_pool_size,
-                    proxy_url=application_config.proxy_url,
+                    proxy=application_config.proxy_url,
                     read_timeout=application_config.read_timeout,
                     write_timeout=application_config.write_timeout,
                     connect_timeout=application_config.connect_timeout,
