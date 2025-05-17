@@ -87,6 +87,7 @@ class ErrorConfig(Settings):
     pb_sunset: int = 43200
     pb_max_lines: int = 1000
     sentry_dsn: str = ""
+    sentry_environment: str = "production"
     notification_chat_id: Optional[str] = None
 
     model_config = SettingsConfigDict(env_prefix="error_")
