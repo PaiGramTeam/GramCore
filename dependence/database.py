@@ -40,7 +40,7 @@ class Database(BaseService.Dependence):
             port=self.port,
             database=self.database,
         )
-        self.engine = create_async_engine(self.url)
+        self.engine = create_async_engine(self.url, pool_recycle=3600, pool_pre_ping=True)
         self.Session = sessionmaker(bind=self.engine, class_=AsyncSession)
 
     @contextlib.asynccontextmanager
