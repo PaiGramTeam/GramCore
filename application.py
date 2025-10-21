@@ -64,6 +64,12 @@ class Application(Singleton):
         self.managers.set_application(application=self)  # 给 managers 设置 application
         self.managers.build_executor("Application")
 
+        try:
+            self.loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+
     @classmethod
     def build(cls):
         managers = Managers()
@@ -278,10 +284,9 @@ class Application(Singleton):
 
     def launch(self) -> None:
         """启动"""
-        loop = asyncio.get_event_loop()
         try:
-            loop.run_until_complete(self.start())
-            loop.run_until_complete(self.idle())
+            self.loop.run_until_complete(self.start())
+            self.loop.run_until_complete(self.idle())
         except (SystemExit, KeyboardInterrupt) as exc:
             logger.debug("接收到了终止信号，BOT 即将关闭", exc_info=exc)  # 接收到了终止信号
         except NetworkError as e:
@@ -292,7 +297,7 @@ class Application(Singleton):
         except Exception as e:
             logger.critical("遇到了未知错误: %s", {type(e)}, exc_info=e)
         finally:
-            loop.run_until_complete(self.stop())
+            self.loop.run_until_complete(self.stop())
 
             if application_config.reload:
                 raise SystemExit from None
