@@ -112,7 +112,7 @@ class _RunRepeating(_Job):
     def __init__(
         self,
         interval: Union[float, datetime.timedelta],
-        first: TimeType = None,
+        first: TimeType = 60,
         last: TimeType = None,
         data: object = None,
         name: str = None,
