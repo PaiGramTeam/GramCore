@@ -65,7 +65,15 @@ class _Job:
 
         self.dispatcher = dispatcher
 
+    @staticmethod
+    def direct_child_class(clazz: Type) -> Type:
+        if clazz.__base__ == _Job:
+            return clazz
+        return _Job.direct_child_class(clazz.__base__)
+
     def __call__(self, func: JobCallback) -> JobCallback:
+        direct_class = self.direct_child_class(self.__class__)
+        job_type = re.sub(r"([A-Z])", lambda x: "_" + x.group().lower(), direct_class.__name__).lstrip("_")
         data = JobData(
             name=self.name,
             data=self.data,
@@ -73,7 +81,7 @@ class _Job:
             user_id=self.user_id,
             job_kwargs=self.job_kwargs,
             kwargs=self.kwargs,
-            type=re.sub(r"([A-Z])", lambda x: "_" + x.group().lower(), self.__class__.__name__).lstrip("_"),
+            type=job_type,
             dispatcher=self.dispatcher,
         )
         if hasattr(func, _JOB_ATTR_NAME):
@@ -165,6 +173,27 @@ class _RunCustom(_Job):
         super().__init__(name, data, chat_id, user_id, job_kwargs, dispatcher=dispatcher)
 
 
+class _RunCron(_RunCustom):
+    def __init__(
+        self,
+        cron: str = None,
+        data: object = None,
+        name: str = None,
+        chat_id: int = None,
+        user_id: int = None,
+        job_kwargs: JSONDict = None,
+        *,
+        dispatcher: Optional[Type["AbstractDispatcher"]] = None,
+    ):
+        job_kwargs = job_kwargs or {}
+        if cron:
+            from apscheduler.triggers.cron import CronTrigger
+
+            cron_trigger = CronTrigger.from_crontab(cron)
+            job_kwargs.update({"trigger": cron_trigger})
+        super().__init__(data, name, chat_id, user_id, job_kwargs, dispatcher=dispatcher)
+
+
 # noinspection PyPep8Naming
 class job:
     run_once = _RunOnce
@@ -172,3 +201,4 @@ class job:
     run_monthly = _RunMonthly
     run_daily = _RunDaily
     run_custom = _RunCustom
+    run_cron = _RunCron
